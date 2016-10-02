@@ -14,13 +14,13 @@ Sometime for example executable made by MinGW-W64, subsysver doesn't match with 
 
 - Dependency issue can be very complex (please use Dependency Walker to analyse your target). This kernel wrapper behave like api-ms-win.dll does by forwarding existing functions into kernel32.dll and k32* into psapi.dll with additional function from msvcp140.dll and few internal functions from WINE project (see below). In short: very few compared to the total missing API.
 
-When something missing (red) from kernel32.dll you need to rename "kernel32.dll" into "kernelxp.dll" in the dll or exe IAT. One of popular application to do this is PE Explorer from NTCore, though you can do this with sed as well with extra cautions.
+When something missing (red) from kernel32.dll you need to rename "kernel32.dll" into "kernelxp.dll" in the dll or exe IAT. One of popular application to do this is PE Explorer from NTCore, though you can do this with sed as well with extra cautions. It is also possible to use manifest to load wrapper (without patching IAT) but since we still need to patch the exe (for subsysver) it's pointless. 
 
 Once both solved give your target executable a try.
 
 Example of "running" apps:
-Python 3.5
-Adobe DNG Converter 9.6
+Python 3.5,
+Adobe DNG Converter 9.6,
 MS Visual True Type
 
 
