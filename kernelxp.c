@@ -153,6 +153,14 @@ __crtWaitForThreadpoolTimerCallbacks (pti, fCancelPendingCallbacks);
 #define strcatW wcscat
 #define strncmpiW _wcsnicmp
 
+//supress msg
+#define TRACE(...) do { } while(0)
+#define TRACE_(ch) WINE_TRACE
+#define WARN(...) do { } while(0)
+#define WARN_(ch) WINE_WARN
+#define FIXME(...) do { } while(0)
+#define FIXME_(ch) WINE_FIXME
+
 /*
  * File handling functions
  *
@@ -181,7 +189,7 @@ static BOOL oem_file_apis;
  *           GetFinalPathNameByHandleW (KERNEL32.@)
  */
 
-__declspec (dllexport) WINBASEAPI DWORD WINAPI GetFinalPathNameByHandleW(HANDLE file, LPWSTR path, DWORD charcount, DWORD flags)
+DWORD WINAPI __crtGetFinalPathNameByHandleW(HANDLE file, LPWSTR path, DWORD charcount, DWORD flags)
 {
     WCHAR buffer[sizeof(OBJECT_NAME_INFORMATION) + MAX_PATH + 1];
     OBJECT_NAME_INFORMATION *info = (OBJECT_NAME_INFORMATION*)&buffer;
@@ -192,11 +200,11 @@ __declspec (dllexport) WINBASEAPI DWORD WINAPI GetFinalPathNameByHandleW(HANDLE 
     ULONG dummy;
     WCHAR *ptr;
 
-    //TRACE( "(%p,%p,%d,%x)\n", file, path, charcount, flags );
+    TRACE( "(%p,%p,%d,%x)\n", file, path, charcount, flags );
 
     if (flags & ~(FILE_NAME_OPENED | VOLUME_NAME_GUID | VOLUME_NAME_NONE | VOLUME_NAME_NT))
     {
-        //WARN("Unknown flags: %x\n", flags);
+        WARN("Unknown flags: %x\n", flags);
         SetLastError( ERROR_INVALID_PARAMETER );
         return 0;
     }
@@ -216,7 +224,7 @@ __declspec (dllexport) WINBASEAPI DWORD WINAPI GetFinalPathNameByHandleW(HANDLE 
     if (info->Name.Length < 4 * sizeof(WCHAR) || info->Name.Buffer[0] != '\\' ||
              info->Name.Buffer[1] != '?' || info->Name.Buffer[2] != '?' || info->Name.Buffer[3] != '\\' )
     {
-        //FIXME("Unexpected object name: %s\n", debugstr_wn(info->Name.Buffer, info->Name.Length / sizeof(WCHAR)));
+        FIXME("Unexpected object name: %s\n", debugstr_wn(info->Name.Buffer, info->Name.Length / sizeof(WCHAR)));
         SetLastError( ERROR_GEN_FAILURE );
         return 0;
     }
@@ -229,7 +237,7 @@ __declspec (dllexport) WINBASEAPI DWORD WINAPI GetFinalPathNameByHandleW(HANDLE 
     /* FILE_NAME_OPENED is not supported yet, and would require Wineserver changes */
     if (flags & FILE_NAME_OPENED)
     {
-        //FIXME("FILE_NAME_OPENED not supported\n");
+        FIXME("FILE_NAME_OPENED not supported\n");
         flags &= ~FILE_NAME_OPENED;
     }
 
@@ -244,8 +252,8 @@ __declspec (dllexport) WINBASEAPI DWORD WINAPI GetFinalPathNameByHandleW(HANDLE 
                 drive_part[drive_part_len-1] != '\\' ||
                 strncmpiW( info->Name.Buffer, drive_part, drive_part_len ))
         {
-            //FIXME("Path %s returned by GetVolumePathNameW does not match file path %s\n",
-            //    debugstr_w(drive_part), debugstr_w(info->Name.Buffer));
+            FIXME("Path %s returned by GetVolumePathNameW does not match file path %s\n",
+                debugstr_w(drive_part), debugstr_w(info->Name.Buffer));
             SetLastError( ERROR_GEN_FAILURE );
             return 0;
         }
@@ -324,7 +332,7 @@ __declspec (dllexport) WINBASEAPI DWORD WINAPI GetFinalPathNameByHandleW(HANDLE 
     else
     {
         /* Windows crashes here, but we prefer returning ERROR_INVALID_PARAMETER */
-        //WARN("Invalid combination of flags: %x\n", flags);
+        WARN("Invalid combination of flags: %x\n", flags);
         SetLastError( ERROR_INVALID_PARAMETER );
     }
 
@@ -334,14 +342,14 @@ __declspec (dllexport) WINBASEAPI DWORD WINAPI GetFinalPathNameByHandleW(HANDLE 
 /***********************************************************************
  *           GetFinalPathNameByHandleA (KERNEL32.@)
  */
-__declspec (dllexport) WINBASEAPI DWORD WINAPI GetFinalPathNameByHandleA(HANDLE file, LPSTR path, DWORD charcount, DWORD flags)
+DWORD WINAPI __crtGetFinalPathNameByHandleA(HANDLE file, LPSTR path, DWORD charcount, DWORD flags)
 {
     WCHAR *str;
     DWORD result, len, cp;
 
-    //TRACE( "(%p,%p,%d,%x)\n", file, path, charcount, flags);
+    TRACE( "(%p,%p,%d,%x)\n", file, path, charcount, flags);
 
-    len = GetFinalPathNameByHandleW(file, NULL, 0, flags);
+    len = __crtGetFinalPathNameByHandleW(file, NULL, 0, flags);
     if (len == 0)
         return 0;
 
@@ -352,11 +360,11 @@ __declspec (dllexport) WINBASEAPI DWORD WINAPI GetFinalPathNameByHandleA(HANDLE 
         return 0;
     }
 
-    result = GetFinalPathNameByHandleW(file, str, len, flags);
+    result = __crtGetFinalPathNameByHandleW(file, str, len, flags);
     if (result != len - 1)
     {
         HeapFree(GetProcessHeap(), 0, str);
-        //WARN("GetFinalPathNameByHandleW failed unexpectedly: %u\n", result);
+        WARN("GetFinalPathNameByHandleW failed unexpectedly: %u\n", result);
         return 0;
     }
 
@@ -366,7 +374,7 @@ __declspec (dllexport) WINBASEAPI DWORD WINAPI GetFinalPathNameByHandleA(HANDLE 
     if (!len)
     {
         HeapFree(GetProcessHeap(), 0, str);
-        //WARN("Failed to get multibyte length\n");
+        WARN("Failed to get multibyte length\n");
         return 0;
     }
 
@@ -380,7 +388,7 @@ __declspec (dllexport) WINBASEAPI DWORD WINAPI GetFinalPathNameByHandleA(HANDLE 
     if (!len)
     {
         HeapFree(GetProcessHeap(), 0, str);
-        //WARN("WideCharToMultiByte failed\n");
+        WARN("WideCharToMultiByte failed\n");
         return 0;
     }
 

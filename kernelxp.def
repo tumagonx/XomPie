@@ -1011,3 +1011,7 @@ SetFileInformationByHandle
 SetThreadpoolTimer
 SetThreadpoolWait
 WaitForThreadpoolTimerCallbacks
+
+;wine
+GetFinalPathNameByHandleW=__crtGetFinalPathNameByHandleW
+GetFinalPathNameByHandleA=__crtGetFinalPathNameByHandleA
