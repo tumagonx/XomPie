@@ -107,10 +107,13 @@ WINBASEAPI int WINAPI __crtGetLocaleInfoEx (LPCWSTR lpLocaleName, LCTYPE LCType,
 WINBASEAPI int WINAPI GetLocaleInfoEx (LPCWSTR lpLocaleName, LCTYPE LCType, LPWSTR lpLCData, int cchData) {
 return __crtGetLocaleInfoEx (lpLocaleName, LCType, lpLCData, cchData);
 }
-WINBASEAPI VOID WINAPI __crtGetSystemTimePreciseAsFileTime (LPFILETIME lpSystemTimeAsFileTime);
-WINBASEAPI VOID WINAPI GetSystemTimePreciseAsFileTime (LPFILETIME lpSystemTimeAsFileTime) {
-__crtGetSystemTimePreciseAsFileTime (lpSystemTimeAsFileTime);
-}
+/* 
+ * not in Windows 7
+ * WINBASEAPI VOID WINAPI __crtGetSystemTimePreciseAsFileTime (LPFILETIME lpSystemTimeAsFileTime);
+ * WINBASEAPI VOID WINAPI GetSystemTimePreciseAsFileTime (LPFILETIME lpSystemTimeAsFileTime) {
+ * __crtGetSystemTimePreciseAsFileTime (lpSystemTimeAsFileTime);
+ * }
+ */
 WINBASEAPI ULONGLONG WINAPI __crtGetTickCount64 (VOID);
 WINBASEAPI ULONGLONG WINAPI GetTickCount64 (VOID) {
 return __crtGetTickCount64 ();
