@@ -1,7 +1,3 @@
-kernelxp.dll
-- forward secure apis to ucrtbase.dll
-- sort using Vista kernel ordinal, skip missing ones
-
 xpvcrt.dll
 - forward to ucrtbase.dll/vcruntime140.dll?
 - using wine for additional functions
@@ -17,5 +13,5 @@ d3d10/11
 - directly use custom compiled wine dll
 - wine currently unstable, wait for mesa/llvmpipe support?
 
-
+Possibility of using hooksubversion + dll redirect manifest to make XomPie patchless?
 
