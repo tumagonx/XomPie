@@ -1,0 +1,24 @@
+kernelxp.dll
+- forward secure apis to ucrtbase.dll
+- sort using Vista kernel ordinal, skip missing ones
+
+xpvcrt.dll
+- forward to ucrtbase.dll/vcruntime140.dll?
+- using wine for additional functions
+
+uspxp.dll 
+- ask powerpoint viewer 2007 as requirement 
+- loadlibrary and forwarded to CSIDL_COMMON_PROGRAMS\Microsoft Shared\OFFICE14\usp10.dll
+
+advapixp.dll
+- use wine for missing functions
+
+userxp.dll
+- same as above
+
+d3d10/11
+- directly use custom compiled wine dll
+- wine currently unstable, wait for mesa/llvmpipe support?
+
+
+
