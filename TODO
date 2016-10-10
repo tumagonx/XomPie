@@ -5,12 +5,13 @@ xpvcrt.dll
 uspxp.dll 
 - ask powerpoint viewer 2007 as requirement 
 - loadlibrary and forwarded to CSIDL_COMMON_PROGRAMS\Microsoft Shared\OFFICE14\usp10.dll
+- or just copy usp10.dll to the same executables directory
 
 advapixp.dll, userxp.dll, shellxp.dll and so on
 - forward to original and use wine for missing functions
 
 d3d10/11
-- directly use custom compiled wine dll
+- directly use custom compiled wine dll? winehq didn't claimed support yet
 - wine currently unstable, wait for mesa/llvmpipe support?
 
 Possibility of using hooksubversion + dll redirect manifest to make XomPie patchless?
