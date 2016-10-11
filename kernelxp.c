@@ -17,7 +17,7 @@ HINSTANCE sysdll = NULL;
 BOOL WINAPI DllMain(HINSTANCE hInst,DWORD reason,LPVOID lpvReserved) {
     if (reason == DLL_PROCESS_ATTACH) {
         hmodule = hInst;
-        sysdll = LoadLibrary(_T("PSAPI.DLL"));
+        sysdll = LoadLibrary(_T("PSAPI.dll"));
         if (!sysdll) return FALSE;
     }
     if (reason == DLL_PROCESS_DETACH) FreeLibrary(sysdll);
@@ -107,13 +107,10 @@ WINBASEAPI int WINAPI __crtGetLocaleInfoEx (LPCWSTR lpLocaleName, LCTYPE LCType,
 WINBASEAPI int WINAPI GetLocaleInfoEx (LPCWSTR lpLocaleName, LCTYPE LCType, LPWSTR lpLCData, int cchData) {
 return __crtGetLocaleInfoEx (lpLocaleName, LCType, lpLCData, cchData);
 }
-/* 
- * not in Windows 7
- * WINBASEAPI VOID WINAPI __crtGetSystemTimePreciseAsFileTime (LPFILETIME lpSystemTimeAsFileTime);
- * WINBASEAPI VOID WINAPI GetSystemTimePreciseAsFileTime (LPFILETIME lpSystemTimeAsFileTime) {
- * __crtGetSystemTimePreciseAsFileTime (lpSystemTimeAsFileTime);
- * }
- */
+WINBASEAPI VOID WINAPI __crtGetSystemTimePreciseAsFileTime (LPFILETIME lpSystemTimeAsFileTime);
+WINBASEAPI VOID WINAPI GetSystemTimePreciseAsFileTime (LPFILETIME lpSystemTimeAsFileTime) {
+__crtGetSystemTimePreciseAsFileTime (lpSystemTimeAsFileTime);
+}
 WINBASEAPI ULONGLONG WINAPI __crtGetTickCount64 (VOID);
 WINBASEAPI ULONGLONG WINAPI GetTickCount64 (VOID) {
 return __crtGetTickCount64 ();
@@ -158,11 +155,8 @@ __crtWaitForThreadpoolTimerCallbacks (pti, fCancelPendingCallbacks);
 
 //supress msg
 #define TRACE(...) do { } while(0)
-#define TRACE_(ch) WINE_TRACE
 #define WARN(...) do { } while(0)
-#define WARN_(ch) WINE_WARN
 #define FIXME(...) do { } while(0)
-#define FIXME_(ch) WINE_FIXME
 
 /*
  * File handling functions
@@ -192,7 +186,7 @@ static BOOL oem_file_apis;
  *           GetFinalPathNameByHandleW (KERNEL32.@)
  */
 
-DWORD WINAPI __crtGetFinalPathNameByHandleW(HANDLE file, LPWSTR path, DWORD charcount, DWORD flags)
+DWORD WINAPI WineGetFinalPathNameByHandleW(HANDLE file, LPWSTR path, DWORD charcount, DWORD flags)
 {
     WCHAR buffer[sizeof(OBJECT_NAME_INFORMATION) + MAX_PATH + 1];
     OBJECT_NAME_INFORMATION *info = (OBJECT_NAME_INFORMATION*)&buffer;
@@ -345,14 +339,14 @@ DWORD WINAPI __crtGetFinalPathNameByHandleW(HANDLE file, LPWSTR path, DWORD char
 /***********************************************************************
  *           GetFinalPathNameByHandleA (KERNEL32.@)
  */
-DWORD WINAPI __crtGetFinalPathNameByHandleA(HANDLE file, LPSTR path, DWORD charcount, DWORD flags)
+DWORD WINAPI WineGetFinalPathNameByHandleA(HANDLE file, LPSTR path, DWORD charcount, DWORD flags)
 {
     WCHAR *str;
     DWORD result, len, cp;
 
     TRACE( "(%p,%p,%d,%x)\n", file, path, charcount, flags);
 
-    len = __crtGetFinalPathNameByHandleW(file, NULL, 0, flags);
+    len = WineGetFinalPathNameByHandleW(file, NULL, 0, flags);
     if (len == 0)
         return 0;
 
@@ -363,7 +357,7 @@ DWORD WINAPI __crtGetFinalPathNameByHandleA(HANDLE file, LPSTR path, DWORD charc
         return 0;
     }
 
-    result = __crtGetFinalPathNameByHandleW(file, str, len, flags);
+    result = WineGetFinalPathNameByHandleW(file, str, len, flags);
     if (result != len - 1)
     {
         HeapFree(GetProcessHeap(), 0, str);
