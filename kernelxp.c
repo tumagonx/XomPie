@@ -1308,3 +1308,7 @@ void WINAPI RtlRunOnceInitialize( RTL_RUN_ONCE *once )
 {
     once->Ptr = NULL;
 }
+
+LONGLONG WINAPI InterlockedCompareExchange64(LONGLONG volatile *Destination, LONGLONG Exchange, LONGLONG Comperand) {
+    return _InterlockedCompareExchange64(Destination, Exchange, Comperand);
+}

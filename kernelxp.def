@@ -748,7 +748,7 @@ InitializeCriticalSectionEx @744
 ;InitializeProcThreadAttributeList @745 
 InitializeSListHead=kernel32.InitializeSListHead @746 
 InitializeSRWLock=WineRtlInitializeSRWLock @747 
-;InterlockedCompareExchange64 @748 
+InterlockedCompareExchange64 @748 
 InterlockedCompareExchange=kernel32.InterlockedCompareExchange @749 
 InterlockedDecrement=kernel32.InterlockedDecrement @750 
 InterlockedExchange=kernel32.InterlockedExchange @751 
