@@ -131,6 +131,10 @@ VOID WINAPI DummyRaiseFailFastException(
 
 }
 
+// Intrinsic
+LONGLONG WINAPI InterlockedCompareExchange64(LONGLONG volatile *Destination, LONGLONG Exchange, LONGLONG Comperand) {
+    return _InterlockedCompareExchange64(Destination, Exchange, Comperand);
+}
 
 /*
  * From WINE 1.9.11, once keep growing consider to link to wine dll
@@ -166,6 +170,8 @@ NTSYSAPI NTSTATUS  WINAPI NtWaitForKeyedEvent(HANDLE,const void*,BOOLEAN,const L
 #define RtlTryAcquireSRWLockShared WineRtlTryAcquireSRWLockShared
 #define RtlInitializeConditionVariable WineRtlInitializeConditionVariable
 #define RtlRunOnceInitialize WineRtlRunOnceInitialize
+#define InitOnceBeginInitialize WineInitOnceBeginInitialize
+#define InitOnceComplete WineInitOnceComplete
 
 #ifdef WINE_IDN
 #include "wineconsts.c"
@@ -1309,6 +1315,111 @@ void WINAPI RtlRunOnceInitialize( RTL_RUN_ONCE *once )
     once->Ptr = NULL;
 }
 
-LONGLONG WINAPI InterlockedCompareExchange64(LONGLONG volatile *Destination, LONGLONG Exchange, LONGLONG Comperand) {
-    return _InterlockedCompareExchange64(Destination, Exchange, Comperand);
+/******************************************************************
+ *              RtlRunOnceBeginInitialize (NTDLL.@)
+ */
+DWORD WINAPI RtlRunOnceBeginInitialize( RTL_RUN_ONCE *once, ULONG flags, void **context )
+{
+    if (flags & RTL_RUN_ONCE_CHECK_ONLY)
+    {
+        ULONG_PTR val = (ULONG_PTR)once->Ptr;
+
+        if (flags & RTL_RUN_ONCE_ASYNC) return STATUS_INVALID_PARAMETER;
+        if ((val & 3) != 2) return STATUS_UNSUCCESSFUL;
+        if (context) *context = (void *)(val & ~3);
+        return STATUS_SUCCESS;
+    }
+
+    for (;;)
+    {
+        ULONG_PTR next, val = (ULONG_PTR)once->Ptr;
+
+        switch (val & 3)
+        {
+        case 0:  /* first time */
+            if (!interlocked_cmpxchg_ptr( &once->Ptr,
+                                          (flags & RTL_RUN_ONCE_ASYNC) ? (void *)3 : (void *)1, 0 ))
+                return STATUS_PENDING;
+            break;
+
+        case 1:  /* in progress, wait */
+            if (flags & RTL_RUN_ONCE_ASYNC) return STATUS_INVALID_PARAMETER;
+            next = val & ~3;
+            if (interlocked_cmpxchg_ptr( &once->Ptr, (void *)((ULONG_PTR)&next | 1),
+                                         (void *)val ) == (void *)val)
+                NtWaitForKeyedEvent( keyed_event, &next, FALSE, NULL );
+            break;
+
+        case 2:  /* done */
+            if (context) *context = (void *)(val & ~3);
+            return STATUS_SUCCESS;
+
+        case 3:  /* in progress, async */
+            if (!(flags & RTL_RUN_ONCE_ASYNC)) return STATUS_INVALID_PARAMETER;
+            return STATUS_PENDING;
+        }
+    }
+}
+
+/******************************************************************
+ *              RtlRunOnceComplete (NTDLL.@)
+ */
+DWORD WINAPI RtlRunOnceComplete( RTL_RUN_ONCE *once, ULONG flags, void *context )
+{
+    if ((ULONG_PTR)context & 3) return STATUS_INVALID_PARAMETER;
+
+    if (flags & RTL_RUN_ONCE_INIT_FAILED)
+    {
+        if (context) return STATUS_INVALID_PARAMETER;
+        if (flags & RTL_RUN_ONCE_ASYNC) return STATUS_INVALID_PARAMETER;
+    }
+    else context = (void *)((ULONG_PTR)context | 2);
+
+    for (;;)
+    {
+        ULONG_PTR val = (ULONG_PTR)once->Ptr;
+
+        switch (val & 3)
+        {
+        case 1:  /* in progress */
+            if (interlocked_cmpxchg_ptr( &once->Ptr, context, (void *)val ) != (void *)val) break;
+            val &= ~3;
+            while (val)
+            {
+                ULONG_PTR next = *(ULONG_PTR *)val;
+                NtReleaseKeyedEvent( keyed_event, (void *)val, FALSE, NULL );
+                val = next;
+            }
+            return STATUS_SUCCESS;
+
+        case 3:  /* in progress, async */
+            if (!(flags & RTL_RUN_ONCE_ASYNC)) return STATUS_INVALID_PARAMETER;
+            if (interlocked_cmpxchg_ptr( &once->Ptr, context, (void *)val ) != (void *)val) break;
+            return STATUS_SUCCESS;
+
+        default:
+            return STATUS_UNSUCCESSFUL;
+        }
+    }
+}
+
+/***********************************************************************
+ *           InitOnceBeginInitialize    (KERNEL32.@)
+ */
+BOOL WINAPI InitOnceBeginInitialize( INIT_ONCE *once, DWORD flags, BOOL *pending, void **context )
+{
+    NTSTATUS status = RtlRunOnceBeginInitialize( once, flags, context );
+    if (status >= 0) *pending = (status == STATUS_PENDING);
+    else SetLastError( RtlNtStatusToDosError(status) );
+    return status >= 0;
+}
+
+/***********************************************************************
+ *           InitOnceComplete    (KERNEL32.@)
+ */
+BOOL WINAPI InitOnceComplete( INIT_ONCE *once, DWORD flags, void *context )
+{
+    NTSTATUS status = RtlRunOnceComplete( once, flags, context );
+    if (status != STATUS_SUCCESS) SetLastError( RtlNtStatusToDosError(status) );
+    return !status;
 }

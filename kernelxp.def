@@ -736,8 +736,8 @@ HeapWalk=kernel32.HeapWalk @731
 ;IdnToNameprepUnicode=WineIdnToNameprepUnicode @733 
 ;IdnToUnicode=WineIdnToUnicode @734 
 InitAtomTable=kernel32.InitAtomTable @735 
-;InitOnceBeginInitialize @736 
-;InitOnceComplete @737 
+InitOnceBeginInitialize=WineInitOnceBeginInitialize @736 
+InitOnceComplete=WineInitOnceComplete @737 
 InitOnceExecuteOnce @738 
 InitOnceInitialize=WineRtlRunOnceInitialize @739 
 InitializeConditionVariable=WineRtlInitializeConditionVariable @740 
