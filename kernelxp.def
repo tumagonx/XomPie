@@ -2,8 +2,8 @@ EXPORTS
 ;Win7
 ;BaseThreadInitThunk @1 
 ;InterlockedPushListSList @2 
-;AcquireSRWLockExclusive @3 
-;AcquireSRWLockShared @4 
+AcquireSRWLockExclusive=WineRtlAcquireSRWLockExclusive @3 
+AcquireSRWLockShared=WineRtlAcquireSRWLockShared @4 
 ActivateActCtx=kernel32.ActivateActCtx @5 
 AddAtomA=kernel32.AddAtomA @6 
 AddAtomW=kernel32.AddAtomW @7 
@@ -731,22 +731,23 @@ HeapSummary=kernel32.HeapSummary @728
 HeapUnlock=kernel32.HeapUnlock @729 
 HeapValidate=kernel32.HeapValidate @730 
 HeapWalk=kernel32.HeapWalk @731 
-;IdnToAscii @732 
-;IdnToNameprepUnicode @733 
-;IdnToUnicode @734 
+;IDN
+;IdnToAscii=WineIdnToAscii @732 
+;IdnToNameprepUnicode=WineIdnToNameprepUnicode @733 
+;IdnToUnicode=WineIdnToUnicode @734 
 InitAtomTable=kernel32.InitAtomTable @735 
 ;InitOnceBeginInitialize @736 
 ;InitOnceComplete @737 
 InitOnceExecuteOnce @738 
-;InitOnceInitialize @739 
-;InitializeConditionVariable @740 
+InitOnceInitialize=WineRtlRunOnceInitialize @739 
+InitializeConditionVariable=WineRtlInitializeConditionVariable @740 
 ;InitializeContext @741 
 InitializeCriticalSection=kernel32.InitializeCriticalSection @742 
 InitializeCriticalSectionAndSpinCount=kernel32.InitializeCriticalSectionAndSpinCount @743 
 InitializeCriticalSectionEx @744 
 ;InitializeProcThreadAttributeList @745 
 InitializeSListHead=kernel32.InitializeSListHead @746 
-;InitializeSRWLock @747 
+InitializeSRWLock=WineRtlInitializeSRWLock @747 
 ;InterlockedCompareExchange64 @748 
 InterlockedCompareExchange=kernel32.InterlockedCompareExchange @749 
 InterlockedDecrement=kernel32.InterlockedDecrement @750 
@@ -946,7 +947,7 @@ QueryPerformanceFrequency=kernel32.QueryPerformanceFrequency @937
 QueueUserAPC=kernel32.QueueUserAPC @944 
 QueueUserWorkItem=kernel32.QueueUserWorkItem @945 
 RaiseException=kernel32.RaiseException @946 
-;RaiseFailFastException @947 
+RaiseFailFastException=DummyRaiseFailFastException @947 
 ;ReOpenFile @948 
 ReadConsoleA=kernel32.ReadConsoleA @949 
 ReadConsoleInputA=kernel32.ReadConsoleInputA @950 
@@ -1020,8 +1021,8 @@ RegisterWowExec=kernel32.RegisterWowExec @1017
 ReleaseActCtx=kernel32.ReleaseActCtx @1018 
 ReleaseMutex=kernel32.ReleaseMutex @1019 
 ;ReleaseMutexWhenCallbackReturns @1020 
-;ReleaseSRWLockExclusive @1021 
-;ReleaseSRWLockShared @1022 
+ReleaseSRWLockExclusive=WineRtlReleaseSRWLockExclusive @1021 
+ReleaseSRWLockShared=WineRtlReleaseSRWLockShared @1022 
 ReleaseSemaphore=kernel32.ReleaseSemaphore @1023 
 ;ReleaseSemaphoreWhenCallbackReturns @1024 
 RemoveDirectoryA=kernel32.RemoveDirectoryA @1025 
@@ -1232,8 +1233,8 @@ TlsSetValue=kernel32.TlsSetValue @1229
 Toolhelp32ReadProcessMemory=kernel32.Toolhelp32ReadProcessMemory @1230 
 TransactNamedPipe=kernel32.TransactNamedPipe @1231 
 TransmitCommChar=kernel32.TransmitCommChar @1232 
-;TryAcquireSRWLockExclusive @1233 
-;TryAcquireSRWLockShared @1234 
+TryAcquireSRWLockExclusive=WineRtlTryAcquireSRWLockExclusive @1233 
+TryAcquireSRWLockShared=WineRtlTryAcquireSRWLockShared @1234 
 TryEnterCriticalSection=kernel32.TryEnterCriticalSection @1235 
 ;TrySubmitThreadpoolCallback @1236 
 TzSpecificLocalTimeToSystemTime=kernel32.TzSpecificLocalTimeToSystemTime @1237 
