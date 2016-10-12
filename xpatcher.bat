@@ -13,8 +13,8 @@ echo.
 echo Patching "%%~nxF"...
 attrib -r "%%~F" && copy /y "%%~F" "%%~dpnxF.bak" >nul 2>&1
 osslsigncode remove-signature -in "%%~dpnxF.bak" -out "%%~dpnxF"
-gsar -o -i -skernel32.dll -rkernelxp.dll "%%~dpnxF"
-gsar -o -i -sadvapi32.dll -radvapixp.dll "%%~dpnxF"
+gsar -o -i -s:x00kernel32.dll:x00 -r:x00kernelxp.dll:x00 "%%~dpnxF"
+gsar -o -i -s:x00advapi32.dll:x00 -r:x00advapixp.dll:x00 "%%~dpnxF"
 pehdr-lite "%%~dpnxF" -subsysver 5.1
 )
 pause
