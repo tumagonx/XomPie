@@ -567,8 +567,8 @@ RegConnectRegistryA=advapi32.RegConnectRegistryA @1562
 ;RegConnectRegistryExA @1563
 ;RegConnectRegistryExW @1564
 RegConnectRegistryW=advapi32.RegConnectRegistryW @1565
-;RegCopyTreeA @1566
-;RegCopyTreeW @1567
+RegCopyTreeA=WineRegCopyTreeA @1566
+RegCopyTreeW=WineRegCopyTreeW @1567
 RegCreateKeyA=advapi32.RegCreateKeyA @1568
 RegCreateKeyExA=advapi32.RegCreateKeyExA @1569
 RegCreateKeyExW=advapi32.RegCreateKeyExW @1570
@@ -576,8 +576,8 @@ RegCreateKeyExW=advapi32.RegCreateKeyExW @1570
 ;RegCreateKeyTransactedW @1572
 RegCreateKeyW=advapi32.RegCreateKeyW @1573
 RegDeleteKeyA=advapi32.RegDeleteKeyA @1574
-;RegDeleteKeyExA @1575
-;RegDeleteKeyExW @1576
+RegDeleteKeyExA=WineRegDeleteKeyExA @1575
+RegDeleteKeyExW=WineRegDeleteKeyExW @1576
 ;RegDeleteKeyTransactedA @1577
 ;RegDeleteKeyTransactedW @1578
 ;RegDeleteKeyValueA @1579
