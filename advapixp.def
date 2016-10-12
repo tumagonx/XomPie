@@ -636,8 +636,8 @@ RegSaveKeyExA=advapi32.RegSaveKeyExA @1631
 RegSaveKeyExW=advapi32.RegSaveKeyExW @1632
 RegSaveKeyW=advapi32.RegSaveKeyW @1633
 RegSetKeySecurity=advapi32.RegSetKeySecurity @1634
-;RegSetKeyValueA @1635
-;RegSetKeyValueW @1636
+RegSetKeyValueA=WineRegSetKeyValueA @1635
+RegSetKeyValueW=WineRegSetKeyValueW @1636
 RegSetValueA=advapi32.RegSetValueA @1637
 RegSetValueExA=advapi32.RegSetValueExA @1638
 RegSetValueExW=advapi32.RegSetValueExW @1639

@@ -42,6 +42,8 @@ BOOL WINAPI DllMain(HINSTANCE hInst,DWORD reason,LPVOID lpvReserved) {
 #define RegCopyTreeA WineRegCopyTreeA
 #define RegDeleteKeyExW WineRegDeleteKeyExW
 #define RegDeleteKeyExA WineRegDeleteKeyExA
+#define RegSetKeyValueW WineRegSetKeyValueW
+#define RegSetKeyValueA WineRegSetKeyValueA
 
 //missing winternl funcs in mingw-w64 4.0
 NTSYSAPI NTSTATUS  WINAPI NtDeleteKey(HANDLE);
@@ -633,3 +635,44 @@ LSTATUS WINAPI RegGetValueW( HKEY hKey, LPCWSTR pszSubKey, LPCWSTR pszValue,
     return ret;
 }
 
+/******************************************************************************
+ * RegSetKeyValueW   [ADVAPI32.@]
+ */
+LONG WINAPI RegSetKeyValueW( HKEY hkey, LPCWSTR subkey, LPCWSTR name, DWORD type, const void *data, DWORD len )
+{
+    HKEY hsubkey = NULL;
+    DWORD ret;
+
+    TRACE("(%p,%s,%s,%d,%p,%d)\n", hkey, debugstr_w(subkey), debugstr_w(name), type, data, len );
+
+    if (subkey && subkey[0])  /* need to create the subkey */
+    {
+        if ((ret = RegCreateKeyW( hkey, subkey, &hsubkey )) != ERROR_SUCCESS) return ret;
+        hkey = hsubkey;
+    }
+
+    ret = RegSetValueExW( hkey, name, 0, type, (const BYTE*)data, len );
+    if (hsubkey) RegCloseKey( hsubkey );
+    return ret;
+}
+
+/******************************************************************************
+ * RegSetKeyValueA   [ADVAPI32.@]
+ */
+LONG WINAPI RegSetKeyValueA( HKEY hkey, LPCSTR subkey, LPCSTR name, DWORD type, const void *data, DWORD len )
+{
+    HKEY hsubkey = NULL;
+    DWORD ret;
+
+    TRACE("(%p,%s,%s,%d,%p,%d)\n", hkey, debugstr_a(subkey), debugstr_a(name), type, data, len );
+
+    if (subkey && subkey[0])  /* need to create the subkey */
+    {
+        if ((ret = RegCreateKeyA( hkey, subkey, &hsubkey )) != ERROR_SUCCESS) return ret;
+        hkey = hsubkey;
+    }
+
+    ret = RegSetValueExA( hkey, name, 0, type, (const BYTE*)data, len );
+    if (hsubkey) RegCloseKey( hsubkey );
+    return ret;
+}
