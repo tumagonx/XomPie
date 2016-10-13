@@ -1,8 +1,7 @@
 @echo off
-isadmin>nul
-if "%ERRORLEVEL%" equ "1" echo WARNING: you have no administrative privileges.
 for %%I in ("gsar.exe") do if not exist "%%~$PATH:I" echo Error: gsar not found&pause & goto :EOF
 for %%I in ("pehdr-lite.exe") do if not exist "%%~$PATH:I" echo Error: pehdr-lite not found&pause & goto :EOF
+if "%~1" equ "" echo Error: no directory specified&pause & goto :EOF
 if not exist "%~1\*" echo Error: not a directory&pause & goto :EOF
 cd /d "%~1"
 if "%ERRORLEVEL%" equ "1" echo Error: directory not accessible&pause & goto :EOF
