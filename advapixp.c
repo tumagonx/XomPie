@@ -28,8 +28,6 @@ BOOL WINAPI DllMain(HINSTANCE hInst,DWORD reason,LPVOID lpvReserved) {
  */
 
 #define __WINE_ALLOC_SIZE(x) __attribute__((__alloc_size__(x)))
-//shouldn't hurt much, badly want to avoid tolowerW here
-#define memicmpW wmemcmp
 
 //supress msg
 #define TRACE(...) do { } while(0)
@@ -50,6 +48,34 @@ NTSYSAPI NTSTATUS  WINAPI NtDeleteKey(HANDLE);
 NTSYSAPI NTSTATUS  WINAPI NtCreateKey(PHANDLE,ACCESS_MASK,const OBJECT_ATTRIBUTES*,ULONG,const UNICODE_STRING*,ULONG,PULONG);
 NTSYSAPI NTSTATUS  WINAPI NtOpenKey(PHANDLE,ACCESS_MASK,const OBJECT_ATTRIBUTES *);
 NTSYSAPI NTSTATUS  WINAPI RtlOpenCurrentUser(ACCESS_MASK,PHANDLE);
+
+/*
+ * Unicode string manipulation functions
+ *
+ * Copyright 2000 Alexandre Julliard
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
+ */
+
+int memicmpW( const WCHAR *str1, const WCHAR *str2, int n )
+{
+    int ret = 0;
+    for ( ; n > 0; n--, str1++, str2++)
+        if ((ret = towlower(*str1) - towlower(*str2))) break;
+    return ret;
+}
 
 /*
  * Registry management
