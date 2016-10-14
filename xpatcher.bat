@@ -4,7 +4,7 @@ for %%I in ("pehdr-lite.exe") do if not exist "%%~$PATH:I" echo Error: pehdr-lit
 if "%~1" equ "" echo Error: no directory specified&pause & goto :EOF
 if not exist "%~1\*" echo Error: not a directory&pause & goto :EOF
 cd /d "%~1"
-if "%ERRORLEVEL%" equ "1" echo Error: directory not accessible&pause & goto :EOF
+if not "%ERRORLEVEL%" equ "0" echo Error: directory not accessible&pause & goto :EOF
 echo Will perform patch to all executables in: "%~1" 
 echo Enter to continue...
 pause>nul 2>&1
