@@ -179,14 +179,8 @@ NTSYSAPI NTSTATUS  WINAPI NtWaitForKeyedEvent(HANDLE,const void*,BOOLEAN,const L
 #define InitOnceBeginInitialize WineInitOnceBeginInitialize
 #define InitOnceComplete WineInitOnceComplete
 
-#ifdef WINE_IDN
 #include "wineconsts.c"
-static inline WCHAR tolowerW( WCHAR ch )
-{
-    extern const WCHAR wine_casemap_lower[];
-    return ch + wine_casemap_lower[wine_casemap_lower[ch >> 8] + (ch & 0xff)];
-}
-#endif
+#define tolowerW towlower
 
 /*
  * File handling functions
@@ -446,8 +440,6 @@ DWORD WINAPI GetFinalPathNameByHandleA(HANDLE file, LPSTR path, DWORD charcount,
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
  */
-
-#ifdef WINE_IDN
 
 enum {
     BASE = 36,
@@ -985,7 +977,6 @@ INT WINAPI IdnToAscii(DWORD dwFlags, LPCWSTR lpUnicodeCharStr, INT cchUnicodeCha
     HeapFree(GetProcessHeap(), 0, norm_str);
     return out;
 }
-#endif
 
 
 

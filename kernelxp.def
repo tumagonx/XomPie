@@ -731,10 +731,9 @@ HeapSummary=kernel32.HeapSummary @728
 HeapUnlock=kernel32.HeapUnlock @729 
 HeapValidate=kernel32.HeapValidate @730 
 HeapWalk=kernel32.HeapWalk @731 
-;IDN
-;IdnToAscii=WineIdnToAscii @732 
-;IdnToNameprepUnicode=WineIdnToNameprepUnicode @733 
-;IdnToUnicode=WineIdnToUnicode @734 
+IdnToAscii=WineIdnToAscii @732 
+IdnToNameprepUnicode=WineIdnToNameprepUnicode @733 
+IdnToUnicode=WineIdnToUnicode @734 
 InitAtomTable=kernel32.InitAtomTable @735 
 InitOnceBeginInitialize=WineInitOnceBeginInitialize @736 
 InitOnceComplete=WineInitOnceComplete @737 
