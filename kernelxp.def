@@ -272,7 +272,7 @@ EnumSystemGeoID=kernel32.EnumSystemGeoID @269
 EnumSystemLanguageGroupsA=kernel32.EnumSystemLanguageGroupsA @270 
 EnumSystemLanguageGroupsW=kernel32.EnumSystemLanguageGroupsW @271 
 EnumSystemLocalesA=kernel32.EnumSystemLocalesA @272 
-;EnumSystemLocalesEx @273 
+EnumSystemLocalesEx=msvcr120.__crtEnumSystemLocalesEx @273 
 EnumSystemLocalesW=kernel32.EnumSystemLocalesW @274 
 EnumTimeFormatsA=kernel32.EnumTimeFormatsA @275 
 ;EnumTimeFormatsEx @276 
@@ -340,10 +340,10 @@ FindResourceW=kernel32.FindResourceW @337
 ;FindStringOrdinal @338 
 FindVolumeClose=kernel32.FindVolumeClose @339 
 FindVolumeMountPointClose=kernel32.FindVolumeMountPointClose @340 
-;FlsAlloc @341 
-;FlsFree @342 
-;FlsGetValue @343 
-;FlsSetValue @344 
+FlsAlloc=msvcr120.__crtFlsAlloc @341 
+FlsFree=msvcr120.__crtFlsFree @342 
+FlsGetValue=msvcr120.__crtFlsGetValue @343 
+FlsSetValue=msvcr120.__crtFlsSetValue @344 
 FlushConsoleInputBuffer=kernel32.FlushConsoleInputBuffer @345 
 FlushFileBuffers=kernel32.FlushFileBuffers @346 
 FlushInstructionCache=kernel32.FlushInstructionCache @347 
@@ -457,7 +457,7 @@ GetCurrentProcessorNumber @453
 GetCurrentThread=kernel32.GetCurrentThread @455 
 GetCurrentThreadId=kernel32.GetCurrentThreadId @456 
 GetDateFormatA=kernel32.GetDateFormatA @457 
-;GetDateFormatEx @458 
+GetDateFormatEx=msvcr120.__crtGetDateFormatEx @458 
 GetDateFormatW=kernel32.GetDateFormatW @459 
 GetDefaultCommConfigA=kernel32.GetDefaultCommConfigA @460 
 GetDefaultCommConfigW=kernel32.GetDefaultCommConfigW @461 
@@ -663,14 +663,14 @@ GetThreadTimes=kernel32.GetThreadTimes @659
 GetTickCount64 @661 
 GetTickCount=kernel32.GetTickCount @662 
 GetTimeFormatA=kernel32.GetTimeFormatA @663 
-;GetTimeFormatEx @664 
+GetTimeFormatEx=msvcr120.__crtGetTimeFormatEx @664 
 GetTimeFormatW=kernel32.GetTimeFormatW @665 
 GetTimeZoneInformation=kernel32.GetTimeZoneInformation @666 
 ;GetTimeZoneInformationForYear @667 
 ;GetUILanguageInfo @668 
 GetUserDefaultLCID=kernel32.GetUserDefaultLCID @669 
 GetUserDefaultLangID=kernel32.GetUserDefaultLangID @670 
-;GetUserDefaultLocaleName @671 
+GetUserDefaultLocaleName=msvcr120.__crtGetUserDefaultLocaleName @671 
 GetUserDefaultUILanguage=kernel32.GetUserDefaultUILanguage @672 
 GetUserGeoID=kernel32.GetUserGeoID @673 
 ;GetUserPreferredUILanguages @674 
@@ -783,7 +783,7 @@ IsSystemResumeAutomatic=kernel32.IsSystemResumeAutomatic @775
 IsValidCodePage=kernel32.IsValidCodePage @780 
 IsValidLanguageGroup=kernel32.IsValidLanguageGroup @781 
 IsValidLocale=kernel32.IsValidLocale @782 
-;IsValidLocaleName @783 
+IsValidLocaleName=msvcr120.__crtIsValidLocaleName @783 
 IsWow64Process=kernel32.IsWow64Process @784 
 K32EmptyWorkingSet=psapi.EmptyWorkingSet @785 
 K32EnumDeviceDrivers=psapi.EnumDeviceDrivers @786 
@@ -1182,7 +1182,7 @@ SetThreadLocale=kernel32.SetThreadLocale @1178
 ;SetThreadPreferredUILanguages @1179 
 SetThreadPriority=kernel32.SetThreadPriority @1180 
 SetThreadPriorityBoost=kernel32.SetThreadPriorityBoost @1181 
-;SetThreadStackGuarantee @1182 
+SetThreadStackGuarantee=msvcr120.__crtSetThreadStackGuarantee @1182 
 ;SetThreadToken @1183 
 SetThreadUILanguage=kernel32.SetThreadUILanguage @1184 
 ;SetThreadpoolStackInformation @1185 

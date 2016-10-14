@@ -6,7 +6,7 @@
 #include <winnls.h>
 
 /*
- * gcc -shared -Wl,--kill-at,--enable-stdcall-fixup,-s kernelxp.def 
+ * gcc -shared -Wl,--kill-at,--enable-stdcall-fixup,-s kernelxp.def -o kernelxp.dll kernelxp.c -L. -lmsvcp140 -lmsvcrt -lntdll -lpsapi
  * -o kernelxp.dll kernelxp.c -L. -lmsvcp140 -lmsvcrt -lntdll -lpsapi
  *
  * In MinGW, any executable will load at least kernel32.dll
@@ -14,14 +14,20 @@
  */
 
 HINSTANCE hmodule = NULL;
-HINSTANCE sysdll = NULL;
+HINSTANCE msvcr120 = NULL;
+HINSTANCE psapi = NULL;
 BOOL WINAPI DllMain(HINSTANCE hInst,DWORD reason,LPVOID lpvReserved) {
     if (reason == DLL_PROCESS_ATTACH) {
         hmodule = hInst;
-        sysdll = LoadLibrary(_T("PSAPI.dll"));
-        if (!sysdll) return FALSE;
+        msvcr120 = LoadLibrary(_T("MSVCR120.dll"));
+        psapi = LoadLibrary(_T("PSAPI.dll"));
+        if (!msvcr120) return FALSE;
+        if (!psapi) return FALSE;
     }
-    if (reason == DLL_PROCESS_DETACH) FreeLibrary(sysdll);
+    if (reason == DLL_PROCESS_DETACH) {
+        FreeLibrary(msvcr120);
+        FreeLibrary(psapi);
+    }
     return TRUE;
 }
 
