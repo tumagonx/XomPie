@@ -599,7 +599,7 @@ RegEnumValueA=advapi32.RegEnumValueA @1594
 RegEnumValueW=advapi32.RegEnumValueW @1595
 RegFlushKey=advapi32.RegFlushKey @1596
 RegGetKeySecurity=advapi32.RegGetKeySecurity @1597
-;RegGetValueA @1598
+RegGetValueA=WineRegGetValueA @1598
 RegGetValueW=WineRegGetValueW @1599
 ;RegLoadAppKeyA @1600
 ;RegLoadAppKeyW @1601
