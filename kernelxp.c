@@ -3,11 +3,12 @@
 #include <winternl.h>
 #include <ntstatus.h>
 #include <tchar.h>
+#include <string.h>
 #include <winnls.h>
 
 /*
- * gcc -shared -Wl,--kill-at,--enable-stdcall-fixup,-s kernelxp.def -o kernelxp.dll kernelxp.c -L. -lmsvcp140 -lmsvcrt -lntdll -lpsapi
- * -o kernelxp.dll kernelxp.c -L. -lmsvcp140 -lmsvcrt -lntdll -lpsapi
+ * gcc -shared -D_UNICODE -DUNICODE -Wl,--kill-at,--enable-stdcall-fixup,-s -L.
+ * kernelxp.def -o kernelxp.dll kernelxp.c -lmsvcp140 -lmsvcrt -lntdll -lpsapi
  *
  * In MinGW, any executable will load at least kernel32.dll
  * (and msvcrt.dll, unless other crt specified) so skip that.
@@ -16,17 +17,21 @@
 HINSTANCE hmodule = NULL;
 HINSTANCE msvcr120 = NULL;
 HINSTANCE psapi = NULL;
+HINSTANCE advapi32 = NULL;
 BOOL WINAPI DllMain(HINSTANCE hInst,DWORD reason,LPVOID lpvReserved) {
     if (reason == DLL_PROCESS_ATTACH) {
         hmodule = hInst;
         msvcr120 = LoadLibrary(_T("MSVCR120.dll"));
         psapi = LoadLibrary(_T("PSAPI.dll"));
+        advapi32 = LoadLibrary(_T("ADVAPI32.dll"));
         if (!msvcr120) return FALSE;
         if (!psapi) return FALSE;
+        if (!advapi32) return FALSE;
     }
     if (reason == DLL_PROCESS_DETACH) {
         FreeLibrary(msvcr120);
         FreeLibrary(psapi);
+        FreeLibrary(advapi32);
     }
     return TRUE;
 }
@@ -129,12 +134,28 @@ __crtWaitForThreadpoolTimerCallbacks (pti, fCancelPendingCallbacks);
 
 
 // Dummy
-VOID WINAPI DummyRaiseFailFastException(
-  _In_opt_ PEXCEPTION_RECORD pExceptionRecord,
-  _In_opt_ PCONTEXT          pContextRecord,
-  _In_     DWORD             dwFlags
-) {
-
+VOID WINAPI DummyRaiseFailFastException(PEXCEPTION_RECORD pExceptionRecord, PCONTEXT pContextRecord, DWORD dwFlags) {
+SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+}
+HANDLE WINAPI DummyPowerCreateRequest(REASON_CONTEXT *context) {
+    SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+    return INVALID_HANDLE_VALUE;
+}
+BOOL WINAPI DummyPowerSetRequest(HANDLE request, POWER_REQUEST_TYPE type) {
+    SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+    return FALSE;
+}
+BOOL WINAPI DummyPowerClearRequest(HANDLE request, POWER_REQUEST_TYPE type) {
+    SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+    return FALSE;
+}
+HRESULT WINAPI DummyRegisterApplicationRecoveryCallback (APPLICATION_RECOVERY_CALLBACK pRecoveyCallback, PVOID pvParameter, DWORD dwPingInterval, DWORD dwFlags) {
+    SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+    return E_FAIL;
+}
+HRESULT WINAPI DummyRegisterApplicationRestart (PCWSTR pwzCommandline, DWORD dwFlags) {
+    SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+    return E_FAIL;
 }
 
 // Intrinsic
@@ -149,12 +170,38 @@ LONGLONG WINAPI InterlockedCompareExchange64(LONGLONG volatile *Destination, LON
 #define strlenW wcslen
 #define strcatW wcscat
 #define strncmpiW _wcsnicmp
+#define strcmpW wcscmp
+#define strpbrkW wcspbrk
+#define strcpyW wcscpy
+#define strchrW wcschr
+#define tolowerW towlower
 #define DECLSPEC_HIDDEN
 
 //missing in mingw-w64 4.0 winternl
-NTSYSAPI void      WINAPI RtlRaiseStatus(NTSTATUS);
-NTSYSAPI NTSTATUS  WINAPI NtReleaseKeyedEvent(HANDLE,const void*,BOOLEAN,const LARGE_INTEGER*);
-NTSYSAPI NTSTATUS  WINAPI NtWaitForKeyedEvent(HANDLE,const void*,BOOLEAN,const LARGE_INTEGER*);
+typedef enum _MEMORY_INFORMATION_CLASS {
+    MemoryBasicInformation,
+    MemoryWorkingSetList,
+    MemorySectionName,
+    MemoryBasicVlmInformation
+} MEMORY_INFORMATION_CLASS;
+
+typedef struct _THREAD_BASIC_INFORMATION
+{
+    NTSTATUS  ExitStatus;
+    PVOID     TebBaseAddress;
+    CLIENT_ID ClientId;
+    ULONG_PTR AffinityMask;
+    LONG      Priority;
+    LONG      BasePriority;
+} THREAD_BASIC_INFORMATION, *PTHREAD_BASIC_INFORMATION;
+
+NTSYSAPI NTSTATUS WINAPI NtQueryVirtualMemory(HANDLE,LPCVOID,MEMORY_INFORMATION_CLASS,PVOID,SIZE_T,SIZE_T*);
+NTSYSAPI NTSTATUS WINAPI NtReleaseKeyedEvent(HANDLE,const void*,BOOLEAN,const LARGE_INTEGER*);
+NTSYSAPI NTSTATUS WINAPI NtWaitForKeyedEvent(HANDLE,const void*,BOOLEAN,const LARGE_INTEGER*);
+NTSYSAPI NTSTATUS WINAPI RtlEnterCriticalSection(RTL_CRITICAL_SECTION *);
+NTSYSAPI NTSTATUS WINAPI RtlLeaveCriticalSection(RTL_CRITICAL_SECTION *);
+NTSYSAPI NTSTATUS WINAPI RtlOemStringToUnicodeString(UNICODE_STRING*,const STRING*,BOOLEAN);
+NTSYSAPI void WINAPI RtlRaiseStatus(NTSTATUS);
 
 //supress msg
 #define TRACE(...) do { } while(0)
@@ -162,11 +209,23 @@ NTSYSAPI NTSTATUS  WINAPI NtWaitForKeyedEvent(HANDLE,const void*,BOOLEAN,const L
 #define FIXME(...) do { } while(0)
 
 //rename funcs
+#define CreateEventExA WineCreateEventExA
+#define CreateSemaphoreExA WineCreateSemaphoreExA
+#define CreateSymbolicLinkA WineCreateSymbolicLinkA
+#define CreateEventExA WineCreateEventExA
 #define IdnToNameprepUnicode WineIdnToNameprepUnicode
 #define IdnToUnicode WineIdnToUnicode
 #define IdnToAscii WineIdnToAscii
+#define InitOnceBeginInitialize WineInitOnceBeginInitialize
+#define InitOnceComplete WineInitOnceComplete
 #define GetFinalPathNameByHandleW WineGetFinalPathNameByHandleW
 #define GetFinalPathNameByHandleA WineGetFinalPathNameByHandleA
+#define GetThreadId WineGetThreadId
+#define K32QueryWorkingSetEx WineK32QueryWorkingSetEx
+#define LCIDToLocaleName WineLCIDToLocaleName
+#define LocaleNameToLCID WineLocaleNameToLCID
+#define NeedCurrentDirectoryForExePathW WineNeedCurrentDirectoryForExePathW
+#define NeedCurrentDirectoryForExePathA WineNeedCurrentDirectoryForExePathA
 #define RtlInitializeSRWLock WineRtlInitializeSRWLock
 #define RtlAcquireSRWLockExclusive WineRtlAcquireSRWLockExclusive
 #define RtlAcquireSRWLockShared WineRtlAcquireSRWLockShared
@@ -176,11 +235,15 @@ NTSYSAPI NTSTATUS  WINAPI NtWaitForKeyedEvent(HANDLE,const void*,BOOLEAN,const L
 #define RtlTryAcquireSRWLockShared WineRtlTryAcquireSRWLockShared
 #define RtlInitializeConditionVariable WineRtlInitializeConditionVariable
 #define RtlRunOnceInitialize WineRtlRunOnceInitialize
-#define InitOnceBeginInitialize WineInitOnceBeginInitialize
-#define InitOnceComplete WineInitOnceComplete
+#define RtlSleepConditionVariableCS WineRtlSleepConditionVariableCS
+#define RtlWakeAllConditionVariable WineRtlWakeAllConditionVariable
+#define RtlWakeConditionVariable WineRtlWakeConditionVariable
+#define SleepConditionVariableCS WineSleepConditionVariableCS
+#define SleepConditionVariableSRW WineSleepConditionVariableSRW
+#define QueryFullProcessImageNameW WineQueryFullProcessImageNameW
+#define QueryFullProcessImageNameA WineQueryFullProcessImageNameA
 
 #include "wineconsts.c"
-#define tolowerW towlower
 
 /*
  * File handling functions
@@ -205,6 +268,58 @@ NTSYSAPI NTSTATUS  WINAPI NtWaitForKeyedEvent(HANDLE,const void*,BOOLEAN,const L
  */
  
 static BOOL oem_file_apis;
+
+/***********************************************************************
+ *           FILE_name_AtoW
+ *
+ * Convert a file name to Unicode, taking into account the OEM/Ansi API mode.
+ *
+ * If alloc is FALSE uses the TEB static buffer, so it can only be used when
+ * there is no possibility for the function to do that twice, taking into
+ * account any called function.
+ */
+WCHAR *FILE_name_AtoW( LPCSTR name, BOOL alloc )
+{
+    ANSI_STRING str;
+    UNICODE_STRING strW, *pstrW;
+    NTSTATUS status;
+
+    RtlInitAnsiString( &str, name );
+    // StaticUnicodeString is WINE specific, always use alloc
+    // pstrW = alloc ? &strW : &NtCurrentTeb()->StaticUnicodeString;
+    pstrW = &strW;
+    if (oem_file_apis)
+        status = RtlOemStringToUnicodeString( pstrW, &str, alloc );
+    else
+        status = RtlAnsiStringToUnicodeString( pstrW, &str, alloc );
+    if (status == STATUS_SUCCESS) return pstrW->Buffer;
+
+    if (status == STATUS_BUFFER_OVERFLOW)
+        SetLastError( ERROR_FILENAME_EXCED_RANGE );
+    else
+        SetLastError( RtlNtStatusToDosError(status) );
+    return NULL;
+}
+
+/*************************************************************************
+ *           CreateSymbolicLinkA   (KERNEL32.@)
+ */
+BOOLEAN WINAPI CreateSymbolicLinkA(LPCSTR link, LPCSTR target, DWORD flags)
+{
+    WCHAR linkbuffer[MAX_PATH];
+    WCHAR targetbuffer[MAX_PATH];
+    if (!MultiByteToWideChar( CP_ACP, 0, link, -1, linkbuffer, MAX_PATH ))
+    {
+        SetLastError( ERROR_FILENAME_EXCED_RANGE );
+        return 0;
+    }
+    if (!MultiByteToWideChar( CP_ACP, 0, target, -1, targetbuffer, MAX_PATH ))
+    {
+        SetLastError( ERROR_FILENAME_EXCED_RANGE );
+        return 0;
+    }
+    return __crtCreateSymbolicLinkW (linkbuffer, targetbuffer, flags);
+}
 
 /***********************************************************************
  *           GetFinalPathNameByHandleW (KERNEL32.@)
@@ -418,6 +533,45 @@ DWORD WINAPI GetFinalPathNameByHandleA(HANDLE file, LPSTR path, DWORD charcount,
     return len - 1;
 }
 
+/***********************************************************************
+ *           NeedCurrentDirectoryForExePathW   (KERNEL32.@)
+ */
+BOOL WINAPI NeedCurrentDirectoryForExePathW( LPCWSTR name )
+{
+    static const WCHAR env_name[] = {'N','o','D','e','f','a','u','l','t',
+                                     'C','u','r','r','e','n','t',
+                                     'D','i','r','e','c','t','o','r','y',
+                                     'I','n','E','x','e','P','a','t','h',0};
+    WCHAR env_val;
+
+    TRACE("(%s)\n", debugstr_w(name));
+
+    if (strchrW(name, '\\'))
+        return TRUE;
+
+    /* Check the existence of the variable, not value */
+    if (!GetEnvironmentVariableW( env_name, &env_val, 1 ))
+        return TRUE;
+
+    return FALSE;
+}
+
+
+/***********************************************************************
+ *           NeedCurrentDirectoryForExePathA   (KERNEL32.@)
+ */
+BOOL WINAPI NeedCurrentDirectoryForExePathA( LPCSTR name )
+{
+    WCHAR *nameW;
+
+    if (!(nameW = FILE_name_AtoW( name, TRUE ))) {
+        HeapFree( GetProcessHeap(), 0, nameW );
+        return TRUE;
+    }
+    HeapFree( GetProcessHeap(), 0, nameW );
+    return NeedCurrentDirectoryForExePathW( nameW );
+}
+
 /*
  * Locale support
  *
@@ -440,6 +594,7 @@ DWORD WINAPI GetFinalPathNameByHandleA(HANDLE file, LPSTR path, DWORD charcount,
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
  */
+HMODULE kernel32_handle DECLSPEC_HIDDEN;
 
 enum {
     BASE = 36,
@@ -450,6 +605,276 @@ enum {
     INIT_BIAS = 72,
     INIT_N = 128
 };
+
+static const struct charset_entry
+{
+    const char *charset_name;
+    UINT        codepage;
+} charset_names[] =
+{
+    { "BIG5", 950 },
+    { "CP1250", 1250 },
+    { "CP1251", 1251 },
+    { "CP1252", 1252 },
+    { "CP1253", 1253 },
+    { "CP1254", 1254 },
+    { "CP1255", 1255 },
+    { "CP1256", 1256 },
+    { "CP1257", 1257 },
+    { "CP1258", 1258 },
+    { "CP932", 932 },
+    { "CP936", 936 },
+    { "CP949", 949 },
+    { "CP950", 950 },
+    { "EUCJP", 20932 },
+    { "GB2312", 936 },
+    { "IBM037", 37 },
+    { "IBM1026", 1026 },
+    { "IBM424", 424 },
+    { "IBM437", 437 },
+    { "IBM500", 500 },
+    { "IBM850", 850 },
+    { "IBM852", 852 },
+    { "IBM855", 855 },
+    { "IBM857", 857 },
+    { "IBM860", 860 },
+    { "IBM861", 861 },
+    { "IBM862", 862 },
+    { "IBM863", 863 },
+    { "IBM864", 864 },
+    { "IBM865", 865 },
+    { "IBM866", 866 },
+    { "IBM869", 869 },
+    { "IBM874", 874 },
+    { "IBM875", 875 },
+    { "ISO88591", 28591 },
+    { "ISO885910", 28600 },
+    { "ISO885913", 28603 },
+    { "ISO885914", 28604 },
+    { "ISO885915", 28605 },
+    { "ISO885916", 28606 },
+    { "ISO88592", 28592 },
+    { "ISO88593", 28593 },
+    { "ISO88594", 28594 },
+    { "ISO88595", 28595 },
+    { "ISO88596", 28596 },
+    { "ISO88597", 28597 },
+    { "ISO88598", 28598 },
+    { "ISO88599", 28599 },
+    { "KOI8R", 20866 },
+    { "KOI8U", 21866 },
+    { "UTF8", CP_UTF8 }
+};
+
+struct locale_name
+{
+    WCHAR  win_name[128];   /* Windows name ("en-US") */
+    WCHAR  lang[128];       /* language ("en") (note: buffer contains the other strings too) */
+    WCHAR *country;         /* country ("US") */
+    WCHAR *charset;         /* charset ("UTF-8") for Unix format only */
+    WCHAR *script;          /* script ("Latn") for Windows format only */
+    WCHAR *modifier;        /* modifier or sort order */
+    LCID   lcid;            /* corresponding LCID */
+    int    matches;         /* number of elements matching LCID (0..4) */
+    UINT   codepage;        /* codepage corresponding to charset */
+};
+
+/***********************************************************************
+ *              charset_cmp (internal)
+ */
+static int charset_cmp( const void *name, const void *entry )
+{
+    const struct charset_entry *charset = entry;
+    return strcasecmp( name, charset->charset_name );
+}
+
+/***********************************************************************
+ *		find_charset
+ */
+static UINT find_charset( const WCHAR *name )
+{
+    const struct charset_entry *entry;
+    char charset_name[16];
+    size_t i, j;
+
+    /* remove punctuation characters from charset name */
+    for (i = j = 0; name[i] && j < sizeof(charset_name)-1; i++)
+        if (isalnum((unsigned char)name[i])) charset_name[j++] = name[i];
+    charset_name[j] = 0;
+
+    entry = bsearch( charset_name, charset_names,
+                     sizeof(charset_names)/sizeof(charset_names[0]),
+                     sizeof(charset_names[0]), charset_cmp );
+    if (entry) return entry->codepage;
+    return 0;
+}
+
+/***********************************************************************
+ *           find_locale_id_callback
+ */
+static BOOL CALLBACK find_locale_id_callback( HMODULE hModule, LPCWSTR type,
+                                              LPCWSTR name, WORD LangID, LPARAM lParam )
+{
+    struct locale_name *data = (struct locale_name *)lParam;
+    WCHAR buffer[128];
+    int matches = 0;
+    LCID lcid = MAKELCID( LangID, SORT_DEFAULT );  /* FIXME: handle sort order */
+
+    if (PRIMARYLANGID(LangID) == LANG_NEUTRAL) return TRUE; /* continue search */
+
+    /* first check exact name */
+    if (data->win_name[0] &&
+        GetLocaleInfoW( lcid, LOCALE_SNAME | LOCALE_NOUSEROVERRIDE,
+                        buffer, sizeof(buffer)/sizeof(WCHAR) ))
+    {
+        if (!strcmpW( data->win_name, buffer ))
+        {
+            matches = 4;  /* everything matches */
+            goto done;
+        }
+    }
+
+    if (!GetLocaleInfoW( lcid, LOCALE_SISO639LANGNAME | LOCALE_NOUSEROVERRIDE,
+                         buffer, sizeof(buffer)/sizeof(WCHAR) ))
+        return TRUE;
+    if (strcmpW( buffer, data->lang )) return TRUE;
+    matches++;  /* language name matched */
+
+    if (data->country)
+    {
+        if (GetLocaleInfoW( lcid, LOCALE_SISO3166CTRYNAME|LOCALE_NOUSEROVERRIDE,
+                            buffer, sizeof(buffer)/sizeof(WCHAR) ))
+        {
+            if (strcmpW( buffer, data->country )) goto done;
+            matches++;  /* country name matched */
+        }
+    }
+    else  /* match default language */
+    {
+        if (SUBLANGID(LangID) == SUBLANG_DEFAULT) matches++;
+    }
+
+    if (data->codepage)
+    {
+        UINT unix_cp;
+        if (GetLocaleInfoW( lcid, LOCALE_RETURN_NUMBER,
+                            (LPWSTR)&unix_cp, sizeof(unix_cp)/sizeof(WCHAR) ))
+        {
+            if (unix_cp == data->codepage) matches++;
+        }
+    }
+
+    /* FIXME: check sort order */
+
+done:
+    if (matches > data->matches)
+    {
+        data->lcid = lcid;
+        data->matches = matches;
+    }
+    return (data->matches < 4);  /* no need to continue for perfect match */
+}
+
+/***********************************************************************
+ *		parse_locale_name
+ *
+ * Parse a locale name into a struct locale_name, handling both Windows and Unix formats.
+ * Unix format is: lang[_country][.charset][@modifier]
+ * Windows format is: lang[-script][-country][_modifier]
+ */
+static void parse_locale_name( const WCHAR *str, struct locale_name *name )
+{
+    static const WCHAR sepW[] = {'-','_','.','@',0};
+    static const WCHAR winsepW[] = {'-','_',0};
+    static const WCHAR posixW[] = {'P','O','S','I','X',0};
+    static const WCHAR cW[] = {'C',0};
+    static const WCHAR latinW[] = {'l','a','t','i','n',0};
+    static const WCHAR latnW[] = {'-','L','a','t','n',0};
+    WCHAR *p;
+
+    TRACE("%s\n", debugstr_w(str));
+
+    name->country = name->charset = name->script = name->modifier = NULL;
+    name->lcid = MAKELCID( MAKELANGID(LANG_ENGLISH,SUBLANG_DEFAULT), SORT_DEFAULT );
+    name->matches = 0;
+    name->codepage = 0;
+    name->win_name[0] = 0;
+    lstrcpynW( name->lang, str, sizeof(name->lang)/sizeof(WCHAR) );
+
+    if (!*name->lang)
+    {
+        name->lcid = LOCALE_INVARIANT;
+        name->matches = 4;
+        return;
+    }
+
+    if (!(p = strpbrkW( name->lang, sepW )))
+    {
+        if (!strcmpW( name->lang, posixW ) || !strcmpW( name->lang, cW ))
+        {
+            name->matches = 4;  /* perfect match for default English lcid */
+            return;
+        }
+        strcpyW( name->win_name, name->lang );
+    }
+    else if (*p == '-')  /* Windows format */
+    {
+        strcpyW( name->win_name, name->lang );
+        *p++ = 0;
+        name->country = p;
+        if (!(p = strpbrkW( p, winsepW ))) goto done;
+        if (*p == '-')
+        {
+            *p++ = 0;
+            name->script = name->country;
+            name->country = p;
+            if (!(p = strpbrkW( p, winsepW ))) goto done;
+        }
+        *p++ = 0;
+        name->modifier = p;
+    }
+    else  /* Unix format */
+    {
+        if (*p == '_')
+        {
+            *p++ = 0;
+            name->country = p;
+            p = strpbrkW( p, sepW + 2 );
+        }
+        if (p && *p == '.')
+        {
+            *p++ = 0;
+            name->charset = p;
+            p = strchrW( p, '@' );
+        }
+        if (p)
+        {
+            *p++ = 0;
+            name->modifier = p;
+        }
+
+        if (name->charset)
+            name->codepage = find_charset( name->charset );
+
+        /* rebuild a Windows name if possible */
+
+        if (name->charset) goto done;  /* can't specify charset in Windows format */
+        if (name->modifier && strcmpW( name->modifier, latinW ))
+            goto done;  /* only Latn script supported for now */
+        strcpyW( name->win_name, name->lang );
+        if (name->modifier) strcatW( name->win_name, latnW );
+        if (name->country)
+        {
+            p = name->win_name + strlenW(name->win_name);
+            *p++ = '-';
+            strcpyW( p, name->country );
+        }
+    }
+done:
+    EnumResourceLanguagesW( kernel32_handle, (LPCWSTR)RT_STRING, (LPCWSTR)LOCALE_ILANGUAGE,
+                            find_locale_id_callback, (LPARAM)name );
+}
+
 
 static inline INT adapt(INT delta, INT numpoints, BOOL firsttime)
 {
@@ -978,7 +1403,100 @@ INT WINAPI IdnToAscii(DWORD dwFlags, LPCWSTR lpUnicodeCharStr, INT cchUnicodeCha
     return out;
 }
 
+/***********************************************************************
+ *           LocaleNameToLCID  (KERNEL32.@)
+ */
+LCID WINAPI LocaleNameToLCID( LPCWSTR name, DWORD flags )
+{
+    struct locale_name locale_name;
+    static int once;
 
+    if (flags && !once++)
+        FIXME( "unsupported flags %x\n", flags );
+
+    if (name == LOCALE_NAME_USER_DEFAULT)
+        return GetUserDefaultLCID();
+
+    /* string parsing */
+    parse_locale_name( name, &locale_name );
+
+    TRACE( "found lcid %x for %s, matches %d\n",
+           locale_name.lcid, debugstr_w(name), locale_name.matches );
+
+    if (!locale_name.matches)
+    {
+        SetLastError(ERROR_INVALID_PARAMETER);
+        return 0;
+    }
+
+    if (locale_name.matches == 1)
+        WARN( "locale %s not recognized, defaulting to %s\n",
+              debugstr_w(name), debugstr_w(locale_name.lang) );
+
+    return locale_name.lcid;
+}
+
+
+/***********************************************************************
+ *           LCIDToLocaleName  (KERNEL32.@)
+ */
+INT WINAPI LCIDToLocaleName( LCID lcid, LPWSTR name, INT count, DWORD flags )
+{
+    static int once;
+    if (flags && !once++) FIXME( "unsupported flags %x\n", flags );
+
+    return GetLocaleInfoW( lcid, LOCALE_SNAME | LOCALE_NOUSEROVERRIDE, name, count );
+}
+
+/*
+ * Win32 threads
+ *
+ * Copyright 1996 Alexandre Julliard
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
+ */
+
+/**********************************************************************
+ * GetThreadId [KERNEL32.@]
+ *
+ * Retrieve the identifier of a thread.
+ *
+ * PARAMS
+ *  Thread [I] The thread to retrieve the identifier of.
+ *
+ * RETURNS
+ *    Success: Identifier of the target thread.
+ *    Failure: 0
+ */
+DWORD WINAPI GetThreadId(HANDLE Thread)
+{
+    THREAD_BASIC_INFORMATION tbi;
+    NTSTATUS status;
+
+    TRACE("(%p)\n", Thread);
+
+    status = NtQueryInformationThread(Thread, ThreadBasicInformation, &tbi,
+                                      sizeof(tbi), NULL);
+    if (status)
+    {
+        SetLastError( RtlNtStatusToDosError(status) );
+        return 0;
+    }
+
+    return HandleToULong(tbi.ClientId.UniqueThread);
+}
 
 //Interlock
 static inline int interlocked_cmpxchg( int *dest, int xchg, int compare )
@@ -1031,6 +1549,25 @@ static inline int interlocked_xchg_add( int *dest, int incr )
     return ret;
 }
 
+static inline int interlocked_dec_if_nonzero( int *dest )
+{
+    int val, tmp;
+    for (val = *dest;; val = tmp)
+    {
+        if (!val || (tmp = interlocked_cmpxchg( dest, val - 1, val )) == val)
+            break;
+    }
+    return val;
+}
+
+/* helper for kernel32->ntdll timeout format conversion */
+static inline PLARGE_INTEGER get_nt_timeout( PLARGE_INTEGER pTime, DWORD timeout )
+{
+    if (timeout == INFINITE) return NULL;
+    pTime->QuadPart = (ULONGLONG)timeout * -10000;
+    return pTime;
+}
+
 /*
  *	Process synchronisation
  *
@@ -1053,6 +1590,163 @@ static inline int interlocked_xchg_add( int *dest, int incr )
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
  */
+
+/***********************************************************************
+ *           CreateEventExA    (KERNEL32.@)
+ */
+HANDLE WINAPI CreateEventExA( SECURITY_ATTRIBUTES *sa, LPCSTR name, DWORD flags, DWORD access )
+{
+    WCHAR buffer[MAX_PATH];
+
+    if (!name) return __crtCreateEventExW( sa, NULL, flags, access );
+
+    if (!MultiByteToWideChar( CP_ACP, 0, name, -1, buffer, MAX_PATH ))
+    {
+        SetLastError( ERROR_FILENAME_EXCED_RANGE );
+        return 0;
+    }
+    return __crtCreateEventExW( sa, buffer, flags, access );
+}
+
+/***********************************************************************
+ *           CreateSemaphoreExA   (KERNEL32.@)
+ */
+HANDLE WINAPI CreateSemaphoreExA( SECURITY_ATTRIBUTES *sa, LONG initial, LONG max,
+                                                    LPCSTR name, DWORD flags, DWORD access )
+{
+    WCHAR buffer[MAX_PATH];
+
+    if (!name) return __crtCreateSemaphoreExW( sa, initial, max, NULL, flags, access );
+
+    if (!MultiByteToWideChar( CP_ACP, 0, name, -1, buffer, MAX_PATH ))
+    {
+        SetLastError( ERROR_FILENAME_EXCED_RANGE );
+        return 0;
+    }
+    return __crtCreateSemaphoreExW( sa, initial, max, buffer, flags, access );
+}
+
+/***********************************************************************
+ *           K32QueryWorkingSetEx (KERNEL32.@)
+ */
+BOOL WINAPI K32QueryWorkingSetEx( HANDLE process, LPVOID buffer, DWORD size )
+{
+    NTSTATUS status;
+
+    TRACE( "(%p, %p, %d)\n", process, buffer, size );
+
+    status = NtQueryVirtualMemory( process, NULL, MemoryWorkingSetList, buffer,  size, NULL );
+
+    if (status)
+    {
+        SetLastError( RtlNtStatusToDosError( status ) );
+        return FALSE;
+    }
+    return TRUE;
+}
+
+/******************************************************************
+ *		QueryFullProcessImageNameW (KERNEL32.@)
+ */
+BOOL WINAPI QueryFullProcessImageNameW(HANDLE hProcess, DWORD dwFlags, LPWSTR lpExeName, PDWORD pdwSize)
+{
+    BYTE buffer[sizeof(UNICODE_STRING) + MAX_PATH*sizeof(WCHAR)];  /* this buffer should be enough */
+    UNICODE_STRING *dynamic_buffer = NULL;
+    UNICODE_STRING *result = NULL;
+    NTSTATUS status;
+    DWORD needed;
+
+    /* FIXME: On Windows, ProcessImageFileName return an NT path. In Wine it
+     * is a DOS path and we depend on this. */
+    status = NtQueryInformationProcess(hProcess, ProcessImageFileName, buffer,
+                                       sizeof(buffer) - sizeof(WCHAR), &needed);
+    if (status == STATUS_INFO_LENGTH_MISMATCH)
+    {
+        dynamic_buffer = HeapAlloc(GetProcessHeap(), 0, needed + sizeof(WCHAR));
+        status = NtQueryInformationProcess(hProcess, ProcessImageFileName, (LPBYTE)dynamic_buffer, needed, &needed);
+        result = dynamic_buffer;
+    }
+    else
+        result = (PUNICODE_STRING)buffer;
+
+    if (status) goto cleanup;
+
+    if (dwFlags & PROCESS_NAME_NATIVE)
+    {
+        WCHAR drive[3];
+        WCHAR device[1024];
+        DWORD ntlen, devlen;
+
+        if (result->Buffer[1] != ':' || result->Buffer[0] < 'A' || result->Buffer[0] > 'Z')
+        {
+            /* We cannot convert it to an NT device path so fail */
+            status = STATUS_NO_SUCH_DEVICE;
+            goto cleanup;
+        }
+
+        /* Find this drive's NT device path */
+        drive[0] = result->Buffer[0];
+        drive[1] = ':';
+        drive[2] = 0;
+        if (!QueryDosDeviceW(drive, device, sizeof(device)/sizeof(*device)))
+        {
+            status = STATUS_NO_SUCH_DEVICE;
+            goto cleanup;
+        }
+
+        devlen = lstrlenW(device);
+        ntlen = devlen + (result->Length/sizeof(WCHAR) - 2);
+        if (ntlen + 1 > *pdwSize)
+        {
+            status = STATUS_BUFFER_TOO_SMALL;
+            goto cleanup;
+        }
+        *pdwSize = ntlen;
+
+        memcpy(lpExeName, device, devlen * sizeof(*device));
+        memcpy(lpExeName + devlen, result->Buffer + 2, result->Length - 2 * sizeof(WCHAR));
+        lpExeName[*pdwSize] = 0;
+        TRACE("NT path: %s\n", debugstr_w(lpExeName));
+    }
+    else
+    {
+        if (result->Length/sizeof(WCHAR) + 1 > *pdwSize)
+        {
+            status = STATUS_BUFFER_TOO_SMALL;
+            goto cleanup;
+        }
+
+        *pdwSize = result->Length/sizeof(WCHAR);
+        memcpy( lpExeName, result->Buffer, result->Length );
+        lpExeName[*pdwSize] = 0;
+    }
+
+cleanup:
+    HeapFree(GetProcessHeap(), 0, dynamic_buffer);
+    if (status) SetLastError( RtlNtStatusToDosError(status) );
+    return !status;
+}
+
+/******************************************************************
+ *		QueryFullProcessImageNameA (KERNEL32.@)
+ */
+BOOL WINAPI QueryFullProcessImageNameA(HANDLE hProcess, DWORD dwFlags, LPSTR lpExeName, PDWORD pdwSize)
+{
+    BOOL retval;
+    DWORD pdwSizeW = *pdwSize;
+    LPWSTR lpExeNameW = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, *pdwSize * sizeof(WCHAR));
+
+    retval = QueryFullProcessImageNameW(hProcess, dwFlags, lpExeNameW, &pdwSizeW);
+
+    if(retval)
+        retval = (0 != WideCharToMultiByte(CP_ACP, 0, lpExeNameW, -1,
+                               lpExeName, *pdwSize, NULL, NULL));
+    if(retval)
+        *pdwSize = strlen(lpExeName);
+
+    HeapFree(GetProcessHeap(), 0, lpExeNameW);
+    return retval;
+}
 
 HANDLE keyed_event = NULL;
 
@@ -1401,6 +2095,116 @@ DWORD WINAPI RtlRunOnceComplete( RTL_RUN_ONCE *once, ULONG flags, void *context 
 }
 
 /***********************************************************************
+ *           RtlWakeConditionVariable   (NTDLL.@)
+ *
+ * Wakes up one thread waiting on the condition variable.
+ *
+ * PARAMS
+ *  variable [I/O] condition variable to wake up.
+ *
+ * RETURNS
+ *  Nothing.
+ *
+ * NOTES
+ *  The calling thread does not have to own any lock in order to call
+ *  this function.
+ */
+void WINAPI RtlWakeConditionVariable( RTL_CONDITION_VARIABLE *variable )
+{
+    if (interlocked_dec_if_nonzero( (int *)&variable->Ptr ))
+        NtReleaseKeyedEvent( keyed_event, &variable->Ptr, FALSE, NULL );
+}
+
+/***********************************************************************
+ *           RtlWakeAllConditionVariable   (NTDLL.@)
+ *
+ * See WakeConditionVariable, wakes up all waiting threads.
+ */
+void WINAPI RtlWakeAllConditionVariable( RTL_CONDITION_VARIABLE *variable )
+{
+    int val = interlocked_xchg( (int *)&variable->Ptr, 0 );
+    while (val-- > 0)
+        NtReleaseKeyedEvent( keyed_event, &variable->Ptr, FALSE, NULL );
+}
+
+/***********************************************************************
+ *           RtlSleepConditionVariableCS   (NTDLL.@)
+ *
+ * Atomically releases the critical section and suspends the thread,
+ * waiting for a Wake(All)ConditionVariable event. Afterwards it enters
+ * the critical section again and returns.
+ *
+ * PARAMS
+ *  variable  [I/O] condition variable
+ *  crit      [I/O] critical section to leave temporarily
+ *  timeout   [I]   timeout
+ *
+ * RETURNS
+ *  see NtWaitForKeyedEvent for all possible return values.
+ */
+NTSTATUS WINAPI RtlSleepConditionVariableCS( RTL_CONDITION_VARIABLE *variable, RTL_CRITICAL_SECTION *crit,
+                                             const LARGE_INTEGER *timeout )
+{
+    NTSTATUS status;
+    interlocked_xchg_add( (int *)&variable->Ptr, 1 );
+    RtlLeaveCriticalSection( crit );
+
+    status = NtWaitForKeyedEvent( keyed_event, &variable->Ptr, FALSE, timeout );
+    if (status != STATUS_SUCCESS)
+    {
+        if (!interlocked_dec_if_nonzero( (int *)&variable->Ptr ))
+            status = NtWaitForKeyedEvent( keyed_event, &variable->Ptr, FALSE, NULL );
+    }
+
+    RtlEnterCriticalSection( crit );
+    return status;
+}
+
+/***********************************************************************
+ *           RtlSleepConditionVariableSRW   (NTDLL.@)
+ *
+ * Atomically releases the SRWLock and suspends the thread,
+ * waiting for a Wake(All)ConditionVariable event. Afterwards it enters
+ * the SRWLock again with the same access rights and returns.
+ *
+ * PARAMS
+ *  variable  [I/O] condition variable
+ *  lock      [I/O] SRWLock to leave temporarily
+ *  timeout   [I]   timeout
+ *  flags     [I]   type of the current lock (exclusive / shared)
+ *
+ * RETURNS
+ *  see NtWaitForKeyedEvent for all possible return values.
+ *
+ * NOTES
+ *  the behaviour is undefined if the thread doesn't own the lock.
+ */
+NTSTATUS WINAPI RtlSleepConditionVariableSRW( RTL_CONDITION_VARIABLE *variable, RTL_SRWLOCK *lock,
+                                              const LARGE_INTEGER *timeout, ULONG flags )
+{
+    NTSTATUS status;
+    interlocked_xchg_add( (int *)&variable->Ptr, 1 );
+
+    if (flags & RTL_CONDITION_VARIABLE_LOCKMODE_SHARED)
+        RtlReleaseSRWLockShared( lock );
+    else
+        RtlReleaseSRWLockExclusive( lock );
+
+    status = NtWaitForKeyedEvent( keyed_event, &variable->Ptr, FALSE, timeout );
+    if (status != STATUS_SUCCESS)
+    {
+        if (!interlocked_dec_if_nonzero( (int *)&variable->Ptr ))
+            status = NtWaitForKeyedEvent( keyed_event, &variable->Ptr, FALSE, NULL );
+    }
+
+    if (flags & RTL_CONDITION_VARIABLE_LOCKMODE_SHARED)
+        RtlAcquireSRWLockShared( lock );
+    else
+        RtlAcquireSRWLockExclusive( lock );
+    return status;
+}
+
+/***********************************************************************
  *           InitOnceBeginInitialize    (KERNEL32.@)
  */
 BOOL WINAPI InitOnceBeginInitialize( INIT_ONCE *once, DWORD flags, BOOL *pending, void **context )
@@ -1419,4 +2223,40 @@ BOOL WINAPI InitOnceComplete( INIT_ONCE *once, DWORD flags, void *context )
     NTSTATUS status = RtlRunOnceComplete( once, flags, context );
     if (status != STATUS_SUCCESS) SetLastError( RtlNtStatusToDosError(status) );
     return !status;
+}
+
+/***********************************************************************
+ *           SleepConditionVariableCS   (KERNEL32.@)
+ */
+BOOL WINAPI SleepConditionVariableCS( CONDITION_VARIABLE *variable, CRITICAL_SECTION *crit, DWORD timeout )
+{
+    NTSTATUS status;
+    LARGE_INTEGER time;
+
+    status = RtlSleepConditionVariableCS( variable, crit, get_nt_timeout( &time, timeout ) );
+
+    if (status != STATUS_SUCCESS)
+    {
+        SetLastError( RtlNtStatusToDosError(status) );
+        return FALSE;
+    }
+    return TRUE;
+}
+
+/***********************************************************************
+ *           SleepConditionVariableSRW   (KERNEL32.@)
+ */
+BOOL WINAPI SleepConditionVariableSRW( RTL_CONDITION_VARIABLE *variable, RTL_SRWLOCK *lock, DWORD timeout, ULONG flags )
+{
+    NTSTATUS status;
+    LARGE_INTEGER time;
+
+    status = RtlSleepConditionVariableSRW( variable, lock, get_nt_timeout( &time, timeout ), flags );
+
+    if (status != STATUS_SUCCESS)
+    {
+        SetLastError( RtlNtStatusToDosError(status) );
+        return FALSE;
+    }
+    return TRUE;
 }
