@@ -340,10 +340,10 @@ FindResourceW=kernel32.FindResourceW @337
 ;FindStringOrdinal @338 
 FindVolumeClose=kernel32.FindVolumeClose @339 
 FindVolumeMountPointClose=kernel32.FindVolumeMountPointClose @340 
-FlsAlloc=msvcr120.__crtFlsAlloc @341 
-FlsFree=msvcr120.__crtFlsFree @342 
-FlsGetValue=msvcr120.__crtFlsGetValue @343 
-FlsSetValue=msvcr120.__crtFlsSetValue @344 
+;FlsAlloc=msvcr120.__crtFlsAlloc @341 
+;FlsFree=msvcr120.__crtFlsFree @342 
+;FlsGetValue=msvcr120.__crtFlsGetValue @343 
+;FlsSetValue=msvcr120.__crtFlsSetValue @344 
 FlushConsoleInputBuffer=kernel32.FlushConsoleInputBuffer @345 
 FlushFileBuffers=kernel32.FlushFileBuffers @346 
 FlushInstructionCache=kernel32.FlushInstructionCache @347 
