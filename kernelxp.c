@@ -17,21 +17,21 @@
 HINSTANCE hmodule = NULL;
 HINSTANCE msvcr120 = NULL;
 HINSTANCE psapi = NULL;
-HINSTANCE advapi32 = NULL;
+HINSTANCE advapixp = NULL;
 BOOL WINAPI DllMain(HINSTANCE hInst,DWORD reason,LPVOID lpvReserved) {
     if (reason == DLL_PROCESS_ATTACH) {
         hmodule = hInst;
         msvcr120 = LoadLibrary(_T("MSVCR120.dll"));
         psapi = LoadLibrary(_T("PSAPI.dll"));
-        advapi32 = LoadLibrary(_T("ADVAPI32.dll"));
+        advapixp = LoadLibrary(_T("ADVAPIXP.dll"));
         if (!msvcr120) return FALSE;
         if (!psapi) return FALSE;
-        if (!advapi32) return FALSE;
+        if (!advapixp) return FALSE;
     }
     if (reason == DLL_PROCESS_DETACH) {
         FreeLibrary(msvcr120);
         FreeLibrary(psapi);
-        FreeLibrary(advapi32);
+        FreeLibrary(advapixp);
     }
     return TRUE;
 }
@@ -132,10 +132,55 @@ WINBASEAPI VOID WINAPI WaitForThreadpoolTimerCallbacks (PTP_TIMER pti, WINBOOL f
 __crtWaitForThreadpoolTimerCallbacks (pti, fCancelPendingCallbacks);
 }
 
+//missing in mingw-w64 4.0 winternl, use from wine
+typedef enum _MEMORY_INFORMATION_CLASS {
+    MemoryBasicInformation,
+    MemoryWorkingSetList,
+    MemorySectionName,
+    MemoryBasicVlmInformation
+} MEMORY_INFORMATION_CLASS;
+typedef struct _THREAD_BASIC_INFORMATION
+{
+    NTSTATUS  ExitStatus;
+    PVOID     TebBaseAddress;
+    CLIENT_ID ClientId;
+    ULONG_PTR AffinityMask;
+    LONG      Priority;
+    LONG      BasePriority;
+} THREAD_BASIC_INFORMATION, *PTHREAD_BASIC_INFORMATION;
+NTSYSAPI NTSTATUS WINAPI NtQueryVirtualMemory(HANDLE,LPCVOID,MEMORY_INFORMATION_CLASS,PVOID,SIZE_T,SIZE_T*);
+NTSYSAPI NTSTATUS WINAPI NtReleaseKeyedEvent(HANDLE,const void*,BOOLEAN,const LARGE_INTEGER*);
+NTSYSAPI NTSTATUS WINAPI NtWaitForKeyedEvent(HANDLE,const void*,BOOLEAN,const LARGE_INTEGER*);
+NTSYSAPI NTSTATUS WINAPI RtlEnterCriticalSection(RTL_CRITICAL_SECTION *);
+NTSYSAPI NTSTATUS WINAPI RtlLeaveCriticalSection(RTL_CRITICAL_SECTION *);
+NTSYSAPI NTSTATUS WINAPI RtlOemStringToUnicodeString(UNICODE_STRING*,const STRING*,BOOLEAN);
+NTSYSAPI void WINAPI RtlRaiseStatus(NTSTATUS);
+
+// mingw64 werapi.h is broken use from wine
+typedef HANDLE HREPORT;
+#define WER_MAX_PREFERRED_MODULES_BUFFER    256
+typedef enum _WER_SUBMIT_RESULT
+{
+    WerReportQueued = 1,
+    WerReportUploaded,
+    WerReportDebug,
+    WerReportFailed,
+    WerDisabled,
+    WerReportCancelled,
+    WerDisabledQueue,
+    WerReportAsync,
+    WerCustomAction
+} WER_SUBMIT_RESULT, *PWER_SUBMIT_RESULT;
+typedef enum _WER_REGISTER_FILE_TYPE
+{
+    WerRegFileTypeUserDocument = 1,
+    WerRegFileTypeOther = 2,
+    WerRegFileTypeMax
+} WER_REGISTER_FILE_TYPE;
 
 // Dummy
 VOID WINAPI DummyRaiseFailFastException(PEXCEPTION_RECORD pExceptionRecord, PCONTEXT pContextRecord, DWORD dwFlags) {
-SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+    SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 }
 HANDLE WINAPI DummyPowerCreateRequest(REASON_CONTEXT *context) {
     SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
@@ -154,6 +199,42 @@ HRESULT WINAPI DummyRegisterApplicationRecoveryCallback (APPLICATION_RECOVERY_CA
     return E_FAIL;
 }
 HRESULT WINAPI DummyRegisterApplicationRestart (PCWSTR pwzCommandline, DWORD dwFlags) {
+    SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+    return E_FAIL;
+}
+BOOL WINAPI DummySetFileCompletionNotificationModes( HANDLE handle, UCHAR flags )
+{
+    return TRUE;
+}
+HRESULT WINAPI DummyWerGetFlags(HANDLE hProcess,PDWORD pdwFlags) {
+    SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+    return E_FAIL;
+}
+HRESULT WINAPI DummyWerRegisterFile(PCWSTR pwzFile,WER_REGISTER_FILE_TYPE regFileType,DWORD dwFlags) {
+    SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+    return E_FAIL;
+}
+HRESULT WINAPI DummyWerRegisterMemoryBlock(PVOID pvAddress,DWORD dwSize) {
+    SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+    return E_FAIL;
+}
+HRESULT WINAPI DummyWerRegisterRuntimeExceptionModule(PCWSTR pwszOutOfProcessCallbackDll, PVOID pContext) {
+    SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+    return E_FAIL;
+}
+HRESULT WINAPI DummyWerSetFlags(DWORD dwFlags) {
+    SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+    return E_FAIL;
+}
+HRESULT WINAPI DummyWerUnregisterFile(PCWSTR pwzFilePath) {
+    SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+    return E_FAIL;
+}
+HRESULT WINAPI DummyWerUnregisterMemoryBlock(PVOID pvAddress) {
+    SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+    return E_FAIL;
+}
+HRESULT WINAPI DummyWerUnregisterRuntimeExceptionModule(PCWSTR pwszOutOfProcessCallbackDll, PVOID pContext) {
     SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
     return E_FAIL;
 }
@@ -177,32 +258,6 @@ LONGLONG WINAPI InterlockedCompareExchange64(LONGLONG volatile *Destination, LON
 #define tolowerW towlower
 #define DECLSPEC_HIDDEN
 
-//missing in mingw-w64 4.0 winternl
-typedef enum _MEMORY_INFORMATION_CLASS {
-    MemoryBasicInformation,
-    MemoryWorkingSetList,
-    MemorySectionName,
-    MemoryBasicVlmInformation
-} MEMORY_INFORMATION_CLASS;
-
-typedef struct _THREAD_BASIC_INFORMATION
-{
-    NTSTATUS  ExitStatus;
-    PVOID     TebBaseAddress;
-    CLIENT_ID ClientId;
-    ULONG_PTR AffinityMask;
-    LONG      Priority;
-    LONG      BasePriority;
-} THREAD_BASIC_INFORMATION, *PTHREAD_BASIC_INFORMATION;
-
-NTSYSAPI NTSTATUS WINAPI NtQueryVirtualMemory(HANDLE,LPCVOID,MEMORY_INFORMATION_CLASS,PVOID,SIZE_T,SIZE_T*);
-NTSYSAPI NTSTATUS WINAPI NtReleaseKeyedEvent(HANDLE,const void*,BOOLEAN,const LARGE_INTEGER*);
-NTSYSAPI NTSTATUS WINAPI NtWaitForKeyedEvent(HANDLE,const void*,BOOLEAN,const LARGE_INTEGER*);
-NTSYSAPI NTSTATUS WINAPI RtlEnterCriticalSection(RTL_CRITICAL_SECTION *);
-NTSYSAPI NTSTATUS WINAPI RtlLeaveCriticalSection(RTL_CRITICAL_SECTION *);
-NTSYSAPI NTSTATUS WINAPI RtlOemStringToUnicodeString(UNICODE_STRING*,const STRING*,BOOLEAN);
-NTSYSAPI void WINAPI RtlRaiseStatus(NTSTATUS);
-
 //supress msg
 #define TRACE(...) do { } while(0)
 #define WARN(...) do { } while(0)
@@ -220,6 +275,9 @@ NTSYSAPI void WINAPI RtlRaiseStatus(NTSTATUS);
 #define InitOnceComplete WineInitOnceComplete
 #define GetFinalPathNameByHandleW WineGetFinalPathNameByHandleW
 #define GetFinalPathNameByHandleA WineGetFinalPathNameByHandleA
+#define GetSystemDefaultLocaleName WineGetSystemDefaultLocaleName
+#define GetSystemPreferredUILanguages WineGetSystemPreferredUILanguages
+#define GetThreadPreferredUILanguages WineGetThreadPreferredUILanguages
 #define GetThreadId WineGetThreadId
 #define K32QueryWorkingSetEx WineK32QueryWorkingSetEx
 #define LCIDToLocaleName WineLCIDToLocaleName
@@ -238,6 +296,7 @@ NTSYSAPI void WINAPI RtlRaiseStatus(NTSTATUS);
 #define RtlSleepConditionVariableCS WineRtlSleepConditionVariableCS
 #define RtlWakeAllConditionVariable WineRtlWakeAllConditionVariable
 #define RtlWakeConditionVariable WineRtlWakeConditionVariable
+#define SetThreadPreferredUILanguages WineSetThreadPreferredUILanguages
 #define SleepConditionVariableCS WineSleepConditionVariableCS
 #define SleepConditionVariableSRW WineSleepConditionVariableSRW
 #define QueryFullProcessImageNameW WineQueryFullProcessImageNameW
@@ -893,6 +952,52 @@ static inline unsigned short get_table_entry( const unsigned short *table, WCHAR
     return table[table[table[ch >> 8] + ((ch >> 4) & 0x0f)] + (ch & 0xf)];
 }
 
+static BOOL get_dummy_preferred_ui_language( DWORD flags, ULONG *count, WCHAR *buffer, ULONG *size )
+{
+    LCTYPE type;
+    int lsize;
+
+    FIXME("(0x%x %p %p %p) returning a dummy value (current locale)\n", flags, count, buffer, size);
+
+    if (flags & MUI_LANGUAGE_ID)
+        type = LOCALE_ILANGUAGE;
+    else
+        type = LOCALE_SNAME;
+
+    lsize = GetLocaleInfoW(LOCALE_SYSTEM_DEFAULT, type, NULL, 0);
+    if (!lsize)
+    {
+        /* keep last error from callee */
+        return FALSE;
+    }
+    lsize++;
+    if (!*size)
+    {
+        *size = lsize;
+        *count = 1;
+        return TRUE;
+    }
+
+    if (lsize > *size)
+    {
+        SetLastError(ERROR_INSUFFICIENT_BUFFER);
+        return FALSE;
+    }
+
+    if (!GetLocaleInfoW(LOCALE_SYSTEM_DEFAULT, type, buffer, *size))
+    {
+        /* keep last error from callee */
+        return FALSE;
+    }
+
+    buffer[lsize-1] = 0;
+    *size = lsize;
+    *count = 1;
+    TRACE("returned variable content: %d, \"%s\", %d\n", *count, debugstr_w(buffer), *size);
+    return TRUE;
+
+}
+
 /******************************************************************************
  *           IdnToNameprepUnicode (KERNEL32.@)
  */
@@ -1446,6 +1551,57 @@ INT WINAPI LCIDToLocaleName( LCID lcid, LPWSTR name, INT count, DWORD flags )
     if (flags && !once++) FIXME( "unsupported flags %x\n", flags );
 
     return GetLocaleInfoW( lcid, LOCALE_SNAME | LOCALE_NOUSEROVERRIDE, name, count );
+}
+
+/***********************************************************************
+ *		GetSystemDefaultLocaleName (KERNEL32.@)
+ */
+INT WINAPI GetSystemDefaultLocaleName(LPWSTR localename, INT len)
+{
+    LCID lcid = GetSystemDefaultLCID();
+    return LCIDToLocaleName(lcid, localename, len, 0);
+}
+
+/***********************************************************************
+ *             GetSystemPreferredUILanguages (KERNEL32.@)
+ */
+BOOL WINAPI GetSystemPreferredUILanguages(DWORD flags, ULONG* count, WCHAR* buffer, ULONG* size)
+{
+    if (flags & ~(MUI_LANGUAGE_NAME | MUI_LANGUAGE_ID | MUI_MACHINE_LANGUAGE_SETTINGS))
+    {
+        SetLastError(ERROR_INVALID_PARAMETER);
+        return FALSE;
+    }
+    if ((flags & MUI_LANGUAGE_NAME) && (flags & MUI_LANGUAGE_ID))
+    {
+        SetLastError(ERROR_INVALID_PARAMETER);
+        return FALSE;
+    }
+    if (*size && !buffer)
+    {
+        SetLastError(ERROR_INVALID_PARAMETER);
+        return FALSE;
+    }
+
+    return get_dummy_preferred_ui_language( flags, count, buffer, size );
+}
+
+/***********************************************************************
+ *              SetThreadPreferredUILanguages (KERNEL32.@)
+ */
+BOOL WINAPI SetThreadPreferredUILanguages( DWORD flags, PCZZWSTR buffer, PULONG count )
+{
+    FIXME( "%u, %p, %p\n", flags, buffer, count );
+    return TRUE;
+}
+
+/***********************************************************************
+ *              GetThreadPreferredUILanguages (KERNEL32.@)
+ */
+BOOL WINAPI GetThreadPreferredUILanguages( DWORD flags, ULONG *count, WCHAR *buf, ULONG *size )
+{
+    FIXME( "%08x, %p, %p %p\n", flags, count, buf, size );
+    return get_dummy_preferred_ui_language( flags, count, buf, size );
 }
 
 /*
