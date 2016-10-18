@@ -4,6 +4,7 @@
 #include <ntstatus.h>
 #include <tchar.h>
 #include <string.h>
+#include <evntprov.h>
 
 /*
  * gcc -shared -Wl,--kill-at,--enable-stdcall-fixup,-s -D_UNICODE -DUNICODE
@@ -22,6 +23,55 @@ BOOL WINAPI DllMain(HINSTANCE hInst,DWORD reason,LPVOID lpvReserved) {
     return TRUE;
 }
 
+// Dummy
+ULONG EVNTAPI DummyEventAccessControl (LPGUID Guid, ULONG Operation, PSID Sid, ULONG Rights, BOOLEAN AllowOrDeny) {
+    SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+    return ERROR_SUCCESS;
+}
+ULONG EVNTAPI DummyEventAccessQuery (LPGUID Guid, PSECURITY_DESCRIPTOR Buffer, PULONG BufferSize) {
+    SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+    return ERROR_SUCCESS;
+}
+ULONG EVNTAPI DummyEventAccessRemove (LPGUID Guid) {
+    SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+    return ERROR_SUCCESS;
+}
+ULONG EVNTAPI DummyEventActivityIdControl (ULONG ControlCode, LPGUID ActivityId) {
+    SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+    return ERROR_SUCCESS;
+}
+BOOLEAN EVNTAPI DummyEventEnabled (REGHANDLE RegHandle, PCEVENT_DESCRIPTOR EventDescriptor) {
+    SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+    return FALSE;
+}
+BOOLEAN EVNTAPI DummyEventProviderEnabled (REGHANDLE RegHandle, UCHAR Level, ULONGLONG Keyword) {
+    SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+    return FALSE;
+}
+ULONG EVNTAPI DummyEventRegister (LPCGUID ProviderId, PENABLECALLBACK EnableCallback, PVOID CallbackContext, PREGHANDLE RegHandle) {
+    SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+    return ERROR_SUCCESS;
+}
+ULONG EVNTAPI DummyEventUnregister (REGHANDLE RegHandle) {
+    SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+    return ERROR_SUCCESS;
+}
+ULONG EVNTAPI DummyEventWrite (REGHANDLE RegHandle, PCEVENT_DESCRIPTOR EventDescriptor, ULONG UserDataCount, PEVENT_DATA_DESCRIPTOR UserData) {
+    SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+    return ERROR_SUCCESS;
+}
+ULONG EVNTAPI DummyEventWriteEx (REGHANDLE RegHandle, PCEVENT_DESCRIPTOR EventDescriptor, ULONG64 Filter, ULONG Flags, LPCGUID ActivityId, LPCGUID RelatedActivityId, ULONG UserDataCount, PEVENT_DATA_DESCRIPTOR UserData) {
+    SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+    return ERROR_SUCCESS;
+}
+ULONG EVNTAPI DummyEventWriteString (REGHANDLE RegHandle, UCHAR Level, ULONGLONG Keyword, PCWSTR String) {
+    SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+    return ERROR_SUCCESS;
+}
+ULONG EVNTAPI DummyEventWriteTransfer (REGHANDLE RegHandle, PCEVENT_DESCRIPTOR EventDescriptor, LPCGUID ActivityId, LPCGUID RelatedActivityId, ULONG UserDataCount, PEVENT_DATA_DESCRIPTOR UserData) {
+    SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+    return ERROR_SUCCESS;
+}
 
 /*
  * From WINE 1.9.11, once keep growing consider to link to wine dll
@@ -39,14 +89,19 @@ BOOL WINAPI DllMain(HINSTANCE hInst,DWORD reason,LPVOID lpvReserved) {
 #define RegCopyTreeA WineRegCopyTreeA
 #define RegDeleteKeyExW WineRegDeleteKeyExW
 #define RegDeleteKeyExA WineRegDeleteKeyExA
+#define RegDeleteKeyValueW WineRegDeleteKeyValueW
+#define RegDeleteKeyValueA WineRegDeleteKeyValueA
+#define RegDeleteTreeW WineRegDeleteTreeW
+#define RegDeleteTreeA WineRegDeleteTreeA
 #define RegGetValueW WineRegGetValueW
 #define RegGetValueA WineRegGetValueA
 #define RegSetKeyValueW WineRegSetKeyValueW
 #define RegSetKeyValueA WineRegSetKeyValueA
 
 //missing winternl funcs in mingw-w64 4.0
-NTSYSAPI NTSTATUS  WINAPI NtDeleteKey(HANDLE);
 NTSYSAPI NTSTATUS  WINAPI NtCreateKey(PHANDLE,ACCESS_MASK,const OBJECT_ATTRIBUTES*,ULONG,const UNICODE_STRING*,ULONG,PULONG);
+NTSYSAPI NTSTATUS  WINAPI NtDeleteKey(HANDLE);
+NTSYSAPI NTSTATUS  WINAPI NtDeleteValueKey(HANDLE,const UNICODE_STRING *);
 NTSYSAPI NTSTATUS  WINAPI NtOpenKey(PHANDLE,ACCESS_MASK,const OBJECT_ATTRIBUTES *);
 NTSYSAPI NTSTATUS  WINAPI RtlOpenCurrentUser(ACCESS_MASK,PHANDLE);
 
@@ -542,6 +597,145 @@ LSTATUS WINAPI RegDeleteKeyExA( HKEY hkey, LPCSTR name, REGSAM access, DWORD res
     return ret;
 }
 
+/******************************************************************************
+ * RegDeleteKeyValueW   [ADVAPI32.@]
+ */
+LONG WINAPI RegDeleteKeyValueW( HKEY hkey, LPCWSTR subkey, LPCWSTR name )
+{
+    UNICODE_STRING nameW;
+    HKEY hsubkey = 0;
+    LONG ret;
+
+    if (!(hkey = get_special_root_hkey( hkey, 0 ))) return ERROR_INVALID_HANDLE;
+
+    if (subkey)
+    {
+        if ((ret = RegOpenKeyExW( hkey, subkey, 0, KEY_SET_VALUE, &hsubkey )))
+            return ret;
+        hkey = hsubkey;
+    }
+
+    RtlInitUnicodeString( &nameW, name );
+    ret = RtlNtStatusToDosError( NtDeleteValueKey( hkey, &nameW ) );
+    if (hsubkey) RegCloseKey( hsubkey );
+    return ret;
+}
+
+/******************************************************************************
+ * RegDeleteKeyValueA   [ADVAPI32.@]
+ */
+LONG WINAPI RegDeleteKeyValueA( HKEY hkey, LPCSTR subkey, LPCSTR name )
+{
+    UNICODE_STRING nameW;
+    HKEY hsubkey = 0;
+    ANSI_STRING nameA;
+    NTSTATUS status;
+
+    if (!(hkey = get_special_root_hkey( hkey, 0 ))) return ERROR_INVALID_HANDLE;
+
+    if (subkey)
+    {
+        LONG ret = RegOpenKeyExA( hkey, subkey, 0, KEY_SET_VALUE, &hsubkey );
+        if (ret)
+            return ret;
+        hkey = hsubkey;
+    }
+
+    RtlInitAnsiString( &nameA, name );
+    if (!(status = RtlAnsiStringToUnicodeString( &nameW, &nameA, TRUE )))
+    {
+        status = NtDeleteValueKey( hkey, &nameW );
+        RtlFreeUnicodeString( &nameW );
+    }
+
+    if (hsubkey) RegCloseKey( hsubkey );
+    return RtlNtStatusToDosError( status );
+}
+
+/******************************************************************************
+ * RegDeleteTreeW [ADVAPI32.@]
+ *
+ */
+LSTATUS WINAPI RegDeleteTreeW( HKEY hkey, const WCHAR *subkey )
+{
+    static const WCHAR emptyW[] = {0};
+    DWORD name_size, max_name, max_subkey;
+    WCHAR *name_buf = NULL;
+    LONG ret;
+
+    TRACE( "(%p, %s)\n", hkey, debugstr_w(subkey) );
+
+    if (subkey && *subkey)
+    {
+        ret = RegOpenKeyExW( hkey, subkey, 0, KEY_READ, &hkey );
+        if (ret) return ret;
+    }
+
+    ret = RegQueryInfoKeyW( hkey, NULL, NULL, NULL, NULL, &max_subkey,
+                            NULL, NULL, &max_name, NULL, NULL, NULL );
+    if (ret)
+        goto cleanup;
+
+    max_name = max( max_subkey, max_name ) + 1;
+    if (!(name_buf = heap_alloc( max_name * sizeof(WCHAR) )))
+    {
+        ret = ERROR_NOT_ENOUGH_MEMORY;
+        goto cleanup;
+    }
+
+    /* Recursively delete subkeys */
+    for (;;)
+    {
+        name_size = max_name;
+        ret = RegEnumKeyExW( hkey, 0, name_buf, &name_size, NULL, NULL, NULL, NULL );
+        if (ret == ERROR_NO_MORE_ITEMS) break;
+        if (ret) goto cleanup;
+        ret = RegDeleteTreeW( hkey, name_buf );
+        if (ret) goto cleanup;
+    }
+
+    /* Delete the key itself */
+    if (subkey && *subkey)
+    {
+        ret = RegDeleteKeyW( hkey, emptyW );
+        goto cleanup;
+    }
+
+    /* Delete values */
+    for (;;)
+    {
+        name_size = max_name;
+        ret = RegEnumValueW( hkey, 0, name_buf, &name_size, NULL, NULL, NULL, NULL );
+        if (ret == ERROR_NO_MORE_ITEMS) break;
+        if (ret) goto cleanup;
+        ret = RegDeleteValueW( hkey, name_buf );
+        if (ret) goto cleanup;
+    }
+
+    ret = ERROR_SUCCESS;
+
+cleanup:
+    heap_free( name_buf );
+    if (subkey && *subkey)
+        RegCloseKey( hkey );
+    return ret;
+}
+
+/******************************************************************************
+ * RegDeleteTreeA [ADVAPI32.@]
+ *
+ */
+LSTATUS WINAPI RegDeleteTreeA( HKEY hkey, const char *subkey )
+{
+    UNICODE_STRING subkeyW;
+    LONG ret;
+
+    if (subkey) RtlCreateUnicodeStringFromAsciiz( &subkeyW, subkey );
+    else subkeyW.Buffer = NULL;
+    ret = RegDeleteTreeW( hkey, subkeyW.Buffer );
+    RtlFreeUnicodeString( &subkeyW );
+    return ret;
+}
 
 /******************************************************************************
  * RegGetValueW   [ADVAPI32.@]
