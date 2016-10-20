@@ -1,6 +1,6 @@
 EXPORTS
 ;how to do this?
-;NONAME=advapi32.NONAME @1000
+ordinal=advapi32.?1000 @1000 NONAME
 
 I_ScGetCurrentGroupStateW=advapi32.I_ScGetCurrentGroupStateW @1001
 A_SHAFinal=advapi32.A_SHAFinal @1002
