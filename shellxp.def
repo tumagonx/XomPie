@@ -1,0 +1,792 @@
+EXPORTS
+;ld dont know about forwarding to ordinal
+;need to hex replace .? with .# manually
+;gsar -o -i -s:x00shell32.? -r:x00shell32.# shellxp.dll
+;gsar -o -i -s:x00shlwapi.? -r:x00shlwapi.# shellxp.dll
+
+SHChangeNotifyRegister=shell32.SHChangeNotifyRegister @2
+SHDefExtractIconA=shell32.SHDefExtractIconA @3
+SHChangeNotifyDeregister=shell32.SHChangeNotifyDeregister @4
+;shun
+ord_5=shell32.?5 @5 NONAME
+SHDefExtractIconW=shell32.SHDefExtractIconW @6
+;shun
+ord_7=shell32.?7 @7 NONAME
+;shun
+ord_8=shell32.?8 @8 NONAME
+PifMgr_OpenProperties=shell32.PifMgr_OpenProperties @9
+PifMgr_GetProperties=shell32.PifMgr_GetProperties @10
+PifMgr_SetProperties=shell32.PifMgr_SetProperties @11
+ord_12=shell32.?12 @12 NONAME
+PifMgr_CloseProperties=shell32.PifMgr_CloseProperties @13
+SHStartNetConnectionDialogW=shell32.SHStartNetConnectionDialogW @14
+ord_15=shell32.?15 @15 NONAME
+ILFindLastID=shell32.ILFindLastID @16
+ILRemoveLastID=shell32.ILRemoveLastID @17
+ILClone=shell32.ILClone @18
+ILCloneFirst=shell32.ILCloneFirst @19
+ord_20=shell32.?20 @20 NONAME
+ILIsEqual=shell32.ILIsEqual @21
+DAD_DragEnterEx2=shell32.DAD_DragEnterEx2 @22
+ILIsParent=shell32.ILIsParent @23
+ILFindChild=shell32.ILFindChild @24
+ILCombine=shell32.ILCombine @25
+;shun
+ILLoadFromStream=shell32.ILLoadFromStream @26
+ILSaveToStream=shell32.ILSaveToStream @27
+SHILCreateFromPath=shell32.SHILCreateFromPath @28
+ord_29=shlwapi.PathIsRootW @29 NONAME
+ord_30=shlwapi.PathBuildRootW @30 NONAME
+ord_31=shlwapi.PathFindExtensionW @31 NONAME
+ord_32=shlwapi.PathAddBackslashW @32 NONAME
+ord_33=shlwapi.PathRemoveBlanksW @33 NONAME
+ord_34=shlwapi.PathFindFileNameW @34 NONAME
+ord_35=shlwapi.PathRemoveFileSpecW @35 NONAME
+ord_36=shlwapi.PathAppendW @36 NONAME
+ord_37=shlwapi.PathCombineW @37 NONAME
+ord_38=shlwapi.PathStripPathW @38 NONAME
+ord_39=shlwapi.PathIsUNCW @39 NONAME
+ord_40=shlwapi.PathIsRelativeW @40 NONAME
+IsLFNDriveA=shell32.IsLFNDriveA @41
+IsLFNDriveW=shell32.IsLFNDriveW @42
+PathIsExe=shell32.PathIsExe @43
+;OpenAs_RunDLL
+ord_44=shell32.?44 @44 NONAME
+ord_45=shell32.?45 @45 NONAME
+ord_46=shlwapi.PathMatchSpecW @46 NONAME
+PathMakeUniqueName=shell32.PathMakeUniqueName @47
+ord_48=shlwapi.PathSetDlgItemPathW @48 NONAME
+PathQualify=shell32.PathQualify @49
+ord_50=shlwapi.PathStripToRootW @50 NONAME
+PathResolve=shell32.PathResolve @51
+ord_52=shlwapi.PathGetArgsW @52 NONAME
+;shun
+ord_53=shell32.?53 @53 NONAME
+ord_54=shell32.?54 @54 NONAME
+ord_55=shlwapi.PathQuoteSpacesW @55 NONAME
+ord_56=shlwapi.PathUnquoteSpacesW @56 NONAME
+ord_57=shlwapi.PathGetDriveNumberW @57 NONAME
+ord_58=shell32.?58 @58 NONAME
+RestartDialog=shell32.RestartDialog @59
+;ordinal@4
+ord_60=shell32.?60 @60 NONAME
+ord_61=shell32.?61 @61 NONAME
+PickIconDlg=shell32.PickIconDlg @62
+GetFileNameFromBrowse=shell32.GetFileNameFromBrowse @63
+DriveType=shell32.DriveType @64
+ord_65=shell32.?65 @65 NONAME
+IsNetDrive=shell32.IsNetDrive @66
+Shell_MergeMenus=shell32.Shell_MergeMenus @67
+SHGetSetSettings=shell32.SHGetSetSettings @68
+ord_69=shell32.?69 @69 NONAME
+ord_70=shell32.?70 @70 NONAME
+Shell_GetImageLists=shell32.Shell_GetImageLists @71
+Shell_GetCachedImageIndex=shell32.Shell_GetCachedImageIndex @72
+SHShellFolderView_Message=shell32.SHShellFolderView_Message @73
+SHCreateStdEnumFmtEtc=shell32.SHCreateStdEnumFmtEtc @74
+PathYetAnotherMakeUniqueName=shell32.PathYetAnotherMakeUniqueName @75
+ord_76=shell32.?76 @76 NONAME
+SHMapPIDLToSystemImageListIndex=shell32.SHMapPIDLToSystemImageListIndex @77
+;shun
+ord_78=shell32.?78 @78 NONAME
+;shun
+ord_79=shell32.?79 @79 NONAME
+SHOpenPropSheetW=shell32.SHOpenPropSheetW @80
+;OpenAs_RunDLLA
+OpenAs_RunDLL=shell32.OpenAs_RunDLL @81
+;shun
+ord_82=shell32.?82 @82 NONAME
+CIDLData_CreateFromIDArray=shell32.CIDLData_CreateFromIDArray @83
+;shun
+ord_84=shell32.?84 @84 NONAME
+OpenRegStream=shlwapi.SHOpenRegStream2W @85
+;shun
+ord_86=shell32.?86 @86 NONAME
+;shun
+ord_87=shell32.?87 @87 NONAME
+SHDoDragDrop=shell32.SHDoDragDrop @88
+SHCloneSpecialIDList=shell32.SHCloneSpecialIDList @89
+SHFindFiles=shell32.SHFindFiles @90
+ord_91=shell32.?91 @91 NONAME
+PathGetShortPath=shell32.PathGetShortPath @92
+ord_93=shell32.?93 @93 NONAME
+ord_94=shell32.?94 @94 NONAME
+ord_95=shell32.?95 @95 NONAME
+;shun
+ord_96=shell32.?96 @96 NONAME
+ord_97=shell32.?97 @97 NONAME
+SHGetRealIDL=shell32.SHGetRealIDL @98
+ord_99=shell32.?99 @99 NONAME
+SHRestricted=shell32.SHRestricted @100
+;shun OpenAs_RunDLLW
+ord_101=shell32.?@101 @101 NONAME
+SHCoCreateInstance=shell32.SHCoCreateInstance @102
+SignalFileOpen=shell32.SignalFileOpen @103
+;shun
+Activate_RunDLL=shell32.Activate_RunDLL
+ord_104=shell32.?104 @104 NONAME
+;shun AppCompat_RunDLLW
+ord_105=shell32.?105 @105 NONAME
+;shun
+CheckEscapesA=shell32.CheckEscapesA
+ord_106=shell32.?106 @106 NONAME
+;shun CheckEscapesW
+ord_107=shell32.?107 @107 NONAME
+;shun CommandLineToArgvW
+ord_108=shell32.?108 @108 NONAME
+;shun
+Control_FillCache_RunDLL=shell32.Control_FillCache_RunDLL
+ord_109=shell32.?109 @109 NONAME
+;shun
+Control_FillCache_RunDLLA=shell32.Control_FillCache_RunDLLA
+ord_110=shell32.?110 @110 NONAME
+;shun
+Control_FillCache_RunDLLW=shell32.Control_FillCache_RunDLLW
+ord_111=shell32.?111 @111 NONAME
+;shun Control_RunDLL
+ord_112=shell32.?112 @112 NONAME
+;shun Control_RunDLLA
+ord_113=shell32.?113 @113 NONAME
+;shun Control_RunDLLAsUserW
+ord_114=shell32.?114 @114 NONAME
+;shun Control_RunDLLW
+ord_115=shell32.?115 @115 NONAME
+;shun DllCanUnloadNow
+ord_116=shell32.?116 @116 NONAME
+;shun DllGetClassObject
+ord_117=shell32.?117 @117 NONAME
+;shun DllGetVersion
+ord_118=shell32.?118 @118 NONAME
+IsLFNDrive=shell32.IsLFNDrive @119
+;shun DllInstall
+ord_120=shell32.?120 @120 NONAME
+;shun
+SHFlushClipboard=shell32.SHFlushClipboard
+ord_121=shell32.?121 @121 NONAME
+;shun
+ord_122=shell32.?122 @122 NONAME
+;shun
+ord_123=shell32.?123 @123 NONAME
+;shun
+;DllRegisterServer
+ord_124=shell32.?124 @124 NONAME
+;DllUnregisterServer
+OpenAs_RunDLLA=shell32.OpenAs_RunDLLA @125
+;shun
+ord_126=shell32.?126 @126 NONAME
+;shun
+ord_127=shell32.?127 @127 NONAME
+ord_128=shell32.?128 @128 NONAME
+DAD_AutoScroll=shell32.DAD_AutoScroll @129
+;shun
+ord_130=shell32.?130 @130 NONAME
+DAD_DragEnterEx=shell32.DAD_DragEnterEx @131
+DAD_DragLeave=shell32.DAD_DragLeave @132
+;DoEnvironmentSubstA
+OpenAs_RunDLLW=shell32.OpenAs_RunDLLW @133
+DAD_DragMove=shell32.DAD_DragMove @134
+;DoEnvironmentSubstW
+;PrepareDiscForBurnRunDllW=shell32.PrepareDiscForBurnRunDllW @135
+DAD_SetDragImage=shell32.DAD_SetDragImage @136
+DAD_ShowDragImage=shell32.DAD_ShowDragImage @137
+;DragAcceptFiles
+PrintersGetCommand_RunDLL=shell32.PrintersGetCommand_RunDLL @138
+;DragFinish
+PrintersGetCommand_RunDLLA=shell32.PrintersGetCommand_RunDLLA @139
+;shun DragQueryFile
+ord_140=shell32.?140 @140 NONAME
+;shun DragQueryFileA
+ord_141=shell32.?141 @141 NONAME
+;shun DragQueryFileAorW
+ord_142=shell32.?142 @142 NONAME
+;shun DragQueryFileW
+ord_143=shell32.?143 @143 NONAME
+;shun DragQueryPoint
+ord_144=shell32.?144 @144 NONAME
+ord_145=shlwapi.PathFindOnPathW @145 NONAME
+;shun
+ord_146=shell32.?146 @146 NONAME
+SHCLSIDFromString=shell32.SHCLSIDFromString @147
+;shun
+SHMapIDListToImageListIndexAsync=shell32.SHMapIDListToImageListIndexAsync
+ord_148=shell32.?148 @148 NONAME
+SHFind_InitMenuPopup=shell32.SHFind_InitMenuPopup @149
+;DuplicateIcon
+PrintersGetCommand_RunDLLW=shell32.PrintersGetCommand_RunDLLW @150
+;shun
+SHLoadOLE=shell32.SHLoadOLE
+ord_151=shell32.?151 @151 NONAME
+ILGetSize=shell32.ILGetSize @152
+ILGetNext=shell32.ILGetNext @153
+ILAppendID=shell32.ILAppendID @154
+ILFree=shell32.ILFree @155
+ord_156=shell32.?156 @156 NONAME
+ILCreateFromPath=shell32.ILCreateFromPath @157
+;shun
+ord_158=shell32.?158 @158 NONAME
+ord_159=shell32.?159 @159 NONAME
+ord_160=shell32.?160 @160 NONAME
+;shun
+SHRunControlPanel=shell32.SHRunControlPanel
+ord_161=shell32.?161 @161 NONAME
+SHSimpleIDListFromPath=shell32.SHSimpleIDListFromPath @162
+;shun
+ord_163=shell32.?163 @163 NONAME
+Win32DeleteFile=shell32.Win32DeleteFile @164
+SHCreateDirectory=shell32.SHCreateDirectory @165
+;shun
+CallCPLEntry16=shell32.CallCPLEntry16
+ord_166=shell32.?166 @166 NONAME
+SHAddFromPropSheetExtArray=shell32.SHAddFromPropSheetExtArray @167
+SHCreatePropSheetExtArray=shell32.SHCreatePropSheetExtArray @168
+SHDestroyPropSheetExtArray=shell32.SHDestroyPropSheetExtArray @169
+SHReplaceFromPropSheetExtArray=shell32.SHReplaceFromPropSheetExtArray @170
+PathCleanupSpec=shell32.PathCleanupSpec @171
+ord_172=shell32.?172 @172 NONAME
+SHValidateUNC=shell32.SHValidateUNC @173
+SHCreateShellFolderViewEx=shell32.SHCreateShellFolderViewEx @174
+ord_175=shell32.?175 @175 NONAME
+SHSetInstanceExplorer=shell32.SHSetInstanceExplorer @176
+;shun
+ord_177=shell32.?177 @177 NONAME
+SHObjectProperties=shell32.SHObjectProperties @178
+SHGetNewLinkInfoA=shell32.SHGetNewLinkInfoA @179
+SHGetNewLinkInfoW=shell32.SHGetNewLinkInfoW @180
+ord_181=shell32.?181 @181 NONAME
+ShellMessageBoxW=shell32.ShellMessageBoxW @182
+ShellMessageBoxA=shell32.ShellMessageBoxA @183
+ord_184=shell32.?184 @184 NONAME
+;shun
+ord_185=shell32.?185 @185 NONAME
+ord_186=shell32.?186 @186 NONAME
+;shun
+ord_187=shell32.?187 @187 NONAME
+ord_188=shell32.?188 @188 NONAME
+ILCreateFromPathA=shell32.ILCreateFromPathA @189
+ILCreateFromPathW=shell32.ILCreateFromPathW @190
+SHUpdateImageA=shell32.SHUpdateImageA @191
+SHUpdateImageW=shell32.SHUpdateImageW @192
+SHHandleUpdateImage=shell32.SHHandleUpdateImage @193
+ord_194=shell32.?194 @194 NONAME
+SHFree=shell32.SHFree @195
+SHAlloc=shell32.SHAlloc @196
+;shun
+ord_197=shell32.?197 @197 NONAME
+;shun
+ord_198=shell32.?198 @198 NONAME
+;ExtractAssociatedIconA
+SHHelpShortcuts_RunDLL=shell32.SHHelpShortcuts_RunDLL @199
+ord_200=shell32.?200 @200 NONAME
+ord_201=shell32.?201 @201 NONAME
+;shun
+ord_202=shell32.?202 @202 NONAME
+ord_203=shell32.?203 @203 NONAME
+ord_204=shell32.?204 @204 NONAME
+ord_205=shell32.?205 @205 NONAME
+;ExtractAssociatedIconExA
+SHHelpShortcuts_RunDLLA=shell32.SHHelpShortcuts_RunDLLA @206
+;ExtractAssociatedIconExW
+SHHelpShortcuts_RunDLLW=shell32.SHHelpShortcuts_RunDLLW @207
+;ExtractAssociatedIconW
+AppCompat_RunDLLW=shell32.AppCompat_RunDLLW @208
+ord_209=shell32.?209 @209 NONAME
+ord_210=shell32.?210 @210 NONAME
+ord_211=shell32.?211 @211 NONAME
+ord_212=shell32.?212 @212 NONAME
+ord_213=shell32.?213 @213 NONAME
+ord_214=shell32.?214 @214 NONAME
+ord_215=shell32.?215 @215 NONAME
+;shun ExtractIconA
+ord_216=shell32.?216 @216 NONAME
+;shun ExtractIconEx
+ord_217=shell32.?217 @217 NONAME
+;shun ExtractIconExA
+ord_218=shell32.?218 @218 NONAME
+;shun ExtractIconExW
+ord_219=shell32.?219 @219 NONAME
+;shun
+ExtractIconResInfoA=shell32.ExtractIconResInfoA
+ord_220=shell32.?220 @220 NONAME
+;shun
+ExtractIconResInfoW=shell32.ExtractIconResInfoW
+ord_221=shell32.?221 @221 NONAME
+;shun ExtractIconW
+ord_222=shell32.?222 @222 NONAME
+;shun
+ExtractVersionResource16W=shell32.ExtractVersionResource16W
+ord_223=shell32.?223 @223 NONAME
+;shun
+FindExeDlgProc=shell32.FindExeDlgProc
+ord_224=shell32.?224 @224 NONAME
+;shun FindExecutableA
+ord_225=shell32.?225 @225 NONAME
+;FindExecutableW
+AssocCreateForClasses=shell32.AssocCreateForClasses @226
+;shun FreeIconList
+ord_227=shell32.?227 @227 NONAME
+;InternalExtractIconListA
+AssocGetDetailsOfPropKey=shell32.AssocGetDetailsOfPropKey @228
+;InternalExtractIconListW
+CheckEscapesW=shell32.CheckEscapesW @229
+;shun
+ord_230=shell32.?230 @230 NONAME
+;suspiciously mapped as ordinal
+;SHSetFolderPathA=shell32.SHSetFolderPathA @231
+;suspiciously mapped as ordinal
+;SHSetFolderPathW=shell32.SHSetFolderPathW @232
+;shun
+ord_233=shell32.?233 @233 NONAME
+;shun
+ord_234=shell32.?234 @234 NONAME
+;shun
+ord_235=shell32.?235 @235 NONAME
+ord_236=shell32.?236 @236 NONAME
+ord_237=shell32.?237 @237 NONAME
+;Options_RunDLL
+CommandLineToArgvW=shell32.CommandLineToArgvW @238
+PathIsSlowW=shell32.PathIsSlowW @239
+PathIsSlowA=shell32.PathIsSlowA @240
+ord_241=shell32.?241 @241 NONAME
+;shun
+ord_242=shell32.?242 @242 NONAME
+;shun
+ord_243=shell32.?243 @243 NONAME
+ord_244=shell32.?244 @244 NONAME
+SHTestTokenMembership=shell32.SHTestTokenMembership @245
+;shun
+ord_246=shell32.?246 @246 NONAME
+;shun
+ord_247=shell32.?247 @247 NONAME
+;shun
+ord_248=shell32.?248 @248 NONAME
+ord_249=shlwapi.PathParseIconLocationW @249 NONAME
+ord_250=shlwapi.PathRemoveExtensionW @250 NONAME
+ord_251=shlwapi.PathRemoveArgsW @251 NONAME
+ord_252=shlwapi.PathIsURLW @252 NONAME
+;shun
+ord_253=shell32.?253 @253 NONAME
+ord_254=shell32.?254 @254 NONAME
+;Options_RunDLLA
+Control_RunDLL=shell32.Control_RunDLL @255
+SHCreateShellFolderView=shell32.SHCreateShellFolderView @256
+ord_257=shell32.?257 @257 NONAME
+ord_258=shell32.?258 @258 NONAME
+ord_259=shell32.?259 @259 NONAME
+ord_260=shell32.?260 @260 NONAME
+ord_261=shell32.?261 @261 NONAME
+ord_262=shell32.?262 @262 NONAME
+Control_RunDLLA=shell32.Control_RunDLLA @263
+ord_264=shell32.?264 @264 NONAME
+ord_265=shell32.?265 @265 NONAME
+ord_266=shell32.?266 @266 NONAME
+Control_RunDLLAsUserW=shell32.Control_RunDLLAsUserW @267
+Control_RunDLLW=shell32.Control_RunDLLW @268
+DllCanUnloadNow=shell32.DllCanUnloadNow @269
+ord_270=shell32.?270 @270 NONAME
+DllGetClassObject=shell32.DllGetClassObject @271
+DllGetVersion=shell32.DllGetVersion @272
+DllInstall=shell32.DllInstall @273
+DllRegisterServer=shell32.DllRegisterServer @274
+DllUnregisterServer=shell32.DllUnregisterServer @275
+DoEnvironmentSubstA=shell32.DoEnvironmentSubstA @276
+DoEnvironmentSubstW=shell32.DoEnvironmentSubstW @277
+DragAcceptFiles=shell32.DragAcceptFiles @278
+DragFinish=shell32.DragFinish @279
+DragQueryFile=shell32.DragQueryFile @280
+DragQueryFileA=shell32.DragQueryFileA @281
+DragQueryFileAorW=shell32.DragQueryFileAorW @282
+DragQueryFileW=shell32.DragQueryFileW @283
+DragQueryPoint=shell32.DragQueryPoint @284
+DuplicateIcon=shell32.DuplicateIcon @285
+ExtractAssociatedIconA=shell32.ExtractAssociatedIconA @286
+ExtractAssociatedIconExA=shell32.ExtractAssociatedIconExA @287
+ExtractAssociatedIconExW=shell32.ExtractAssociatedIconExW @288
+ExtractAssociatedIconW=shell32.ExtractAssociatedIconW @289
+ExtractIconA=shell32.ExtractIconA @290
+ExtractIconEx=shell32.ExtractIconEx @291
+ExtractIconExA=shell32.ExtractIconExA @292
+ExtractIconExW=shell32.ExtractIconExW @293
+ExtractIconW=shell32.ExtractIconW @294
+FindExecutableA=shell32.FindExecutableA @295
+FindExecutableW=shell32.FindExecutableW @296
+FreeIconList=shell32.FreeIconList @297
+;GetCurrentProcessExplicitAppUserModelID=shell32.GetCurrentProcessExplicitAppUserModelID @298
+;InitNetworkAddressControl=shell32.InitNetworkAddressControl @299
+InternalExtractIconListA=shell32.InternalExtractIconListA @300
+InternalExtractIconListW=shell32.InternalExtractIconListW @301
+;LaunchMSHelp_RunDLLW=shell32.LaunchMSHelp_RunDLLW @302
+Options_RunDLL=shell32.Options_RunDLL @303
+Options_RunDLLA=shell32.Options_RunDLLA @304
+Options_RunDLLW=shell32.Options_RunDLLW @305
+RealShellExecuteA=shell32.RealShellExecuteA @306
+RealShellExecuteExA=shell32.RealShellExecuteExA @307
+RealShellExecuteExW=shell32.RealShellExecuteExW @308
+RealShellExecuteW=shell32.RealShellExecuteW @309
+RegenerateUserEnvironment=shell32.RegenerateUserEnvironment @310
+;RunAsNewUser_RunDLLW=shell32.RunAsNewUser_RunDLLW @311
+;SHAddDefaultPropertiesByExt=shell32.SHAddDefaultPropertiesByExt @312
+SHAddToRecentDocs=shell32.SHAddToRecentDocs @313
+SHAppBarMessage=shell32.SHAppBarMessage @314
+;SHAssocEnumHandlers=shell32.SHAssocEnumHandlers @315
+;SHAssocEnumHandlersForProtocolByApplication=shell32.SHAssocEnumHandlersForProtocolByApplication @316
+;SHBindToFolderIDListParent=shell32.SHBindToFolderIDListParent @317
+;SHBindToFolderIDListParentEx=shell32.SHBindToFolderIDListParentEx @318
+;SHBindToObject=shell32.SHBindToObject @319
+SHBindToParent=shell32.SHBindToParent @320
+SHBrowseForFolder=shell32.SHBrowseForFolder @321
+SHBrowseForFolderA=shell32.SHBrowseForFolderA @322
+SHBrowseForFolderW=shell32.SHBrowseForFolderW @323
+SHChangeNotify=shell32.SHChangeNotify @324
+;SHChangeNotifyRegisterThread=shell32.SHChangeNotifyRegisterThread @325
+SHChangeNotifySuspendResume=shell32.SHChangeNotifySuspendResume @326
+;SHCreateAssociationRegistration=shell32.SHCreateAssociationRegistration @327
+;SHCreateDataObject=shell32.SHCreateDataObject @328
+;SHCreateDefaultContextMenu=shell32.SHCreateDefaultContextMenu @329
+;SHCreateDefaultExtractIcon=shell32.SHCreateDefaultExtractIcon @330
+;SHCreateDefaultPropertiesOp=shell32.SHCreateDefaultPropertiesOp @331
+SHCreateDirectoryExA=shell32.SHCreateDirectoryExA @332
+SHCreateDirectoryExW=shell32.SHCreateDirectoryExW @333
+;SHCreateItemFromIDList=shell32.SHCreateItemFromIDList @334
+;SHCreateItemFromParsingName=shell32.SHCreateItemFromParsingName @335
+;SHCreateItemFromRelativeName=shell32.SHCreateItemFromRelativeName @336
+;SHCreateItemInKnownFolder=shell32.SHCreateItemInKnownFolder @337
+;SHCreateItemWithParent=shell32.SHCreateItemWithParent @338
+SHCreateLocalServerRunDll=shell32.SHCreateLocalServerRunDll @339
+SHCreateProcessAsUserW=shell32.SHCreateProcessAsUserW @340
+SHCreateQueryCancelAutoPlayMoniker=shell32.SHCreateQueryCancelAutoPlayMoniker @341
+SHCreateShellItem=shell32.SHCreateShellItem @342
+;SHCreateShellItemArray=shell32.SHCreateShellItemArray @343
+;SHCreateShellItemArrayFromDataObject=shell32.SHCreateShellItemArrayFromDataObject @344
+;SHCreateShellItemArrayFromIDLists=shell32.SHCreateShellItemArrayFromIDLists @345
+;SHCreateShellItemArrayFromShellItem=shell32.SHCreateShellItemArrayFromShellItem @346
+SHEmptyRecycleBinA=shell32.SHEmptyRecycleBinA @347
+SHEmptyRecycleBinW=shell32.SHEmptyRecycleBinW @348
+SHEnableServiceObject=shell32.SHEnableServiceObject @349
+SHEnumerateUnreadMailAccountsW=shell32.SHEnumerateUnreadMailAccountsW @350
+;SHEvaluateSystemCommandTemplate=shell32.SHEvaluateSystemCommandTemplate @351
+SHExtractIconsW=shell32.SHExtractIconsW @352
+SHFileOperation=shell32.SHFileOperation @353
+SHFileOperationA=shell32.SHFileOperationA @354
+SHFileOperationW=shell32.SHFileOperationW @355
+SHFormatDrive=shell32.SHFormatDrive @356
+SHFreeNameMappings=shell32.SHFreeNameMappings @357
+SHGetDataFromIDListA=shell32.SHGetDataFromIDListA @358
+SHGetDataFromIDListW=shell32.SHGetDataFromIDListW @359
+SHGetDesktopFolder=shell32.SHGetDesktopFolder @360
+SHGetDiskFreeSpaceA=shell32.SHGetDiskFreeSpaceA @361
+SHGetDiskFreeSpaceExA=shell32.SHGetDiskFreeSpaceExA @362
+;SHGetDiskFreeSpaceExW=shell32.SHGetDiskFreeSpaceExW @363
+;SHGetDriveMedia=shell32.SHGetDriveMedia @364
+SHGetFileInfo=shell32.SHGetFileInfo @365
+SHGetFileInfoA=shell32.SHGetFileInfoA @366
+SHGetFileInfoW=shell32.SHGetFileInfoW @367
+SHGetFolderLocation=shell32.SHGetFolderLocation @368
+SHGetFolderPathA=shell32.SHGetFolderPathA @369
+SHGetFolderPathAndSubDirA=shell32.SHGetFolderPathAndSubDirA @370
+SHGetFolderPathAndSubDirW=shell32.SHGetFolderPathAndSubDirW @371
+SHGetFolderPathEx=WineSHGetFolderPathEx @372
+SHGetFolderPathW=shell32.SHGetFolderPathW @373
+;SHGetIDListFromObject=shell32.SHGetIDListFromObject @374
+SHGetIconOverlayIndexA=shell32.SHGetIconOverlayIndexA @375
+SHGetIconOverlayIndexW=shell32.SHGetIconOverlayIndexW @376
+SHGetInstanceExplorer=shell32.SHGetInstanceExplorer @377
+;SHGetItemFromDataObject=shell32.SHGetItemFromDataObject @378
+;SHGetItemFromObject=shell32.SHGetItemFromObject @379
+;SHGetKnownFolderIDList=shell32.SHGetKnownFolderIDList @380
+;SHGetKnownFolderItem=shell32.SHGetKnownFolderItem @381
+SHGetKnownFolderPath=WineSHGetKnownFolderPath @382
+;SHGetLocalizedName=shell32.SHGetLocalizedName @383
+SHGetMalloc=shell32.SHGetMalloc @384
+;SHGetNameFromIDList=shell32.SHGetNameFromIDList @385
+SHGetNewLinkInfo=shell32.SHGetNewLinkInfo @386
+SHGetPathFromIDList=shell32.SHGetPathFromIDList @387
+SHGetPathFromIDListA=shell32.SHGetPathFromIDListA @388
+;SHGetPathFromIDListEx=shell32.SHGetPathFromIDListEx @389
+SHGetPathFromIDListW=shell32.SHGetPathFromIDListW @390
+;SHGetPropertyStoreForWindow=shell32.SHGetPropertyStoreForWindow @391
+;SHGetPropertyStoreFromIDList=shell32.SHGetPropertyStoreFromIDList @392
+;SHGetPropertyStoreFromParsingName=shell32.SHGetPropertyStoreFromParsingName @393
+SHGetSettings=shell32.SHGetSettings @394
+SHGetSpecialFolderLocation=shell32.SHGetSpecialFolderLocation @395
+SHGetSpecialFolderPathA=shell32.SHGetSpecialFolderPathA @396
+SHGetSpecialFolderPathW=shell32.SHGetSpecialFolderPathW @397
+SHGetStockIconInfo=WineSHGetStockIconInfo @398
+;SHGetTemporaryPropertyForItem=shell32.SHGetTemporaryPropertyForItem @399
+SHGetUnreadMailCountW=shell32.SHGetUnreadMailCountW @400
+SHInvokePrinterCommandA=shell32.SHInvokePrinterCommandA @401
+SHInvokePrinterCommandW=shell32.SHInvokePrinterCommandW @402
+SHIsFileAvailableOffline=shell32.SHIsFileAvailableOffline @403
+SHLoadInProc=shell32.SHLoadInProc @404
+SHLoadNonloadedIconOverlayIdentifiers=shell32.SHLoadNonloadedIconOverlayIdentifiers @405
+SHOpenFolderAndSelectItems=shell32.SHOpenFolderAndSelectItems @406
+;SHOpenWithDialog=shell32.SHOpenWithDialog @407
+SHParseDisplayName=shell32.SHParseDisplayName @408
+SHPathPrepareForWriteA=shell32.SHPathPrepareForWriteA @409
+SHPathPrepareForWriteW=shell32.SHPathPrepareForWriteW @410
+SHQueryRecycleBinA=shell32.SHQueryRecycleBinA @411
+SHQueryRecycleBinW=shell32.SHQueryRecycleBinW @412
+;SHQueryUserNotificationState=shell32.SHQueryUserNotificationState @413
+;SHRemoveLocalizedName=shell32.SHRemoveLocalizedName @414
+;SHResolveLibrary=shell32.SHResolveLibrary @415
+;SHSetDefaultProperties=shell32.SHSetDefaultProperties @416
+;SHSetKnownFolderPath=shell32.SHSetKnownFolderPath @417
+SHSetLocalizedName=shell32.SHSetLocalizedName @418
+;SHSetTemporaryPropertyForItem=shell32.SHSetTemporaryPropertyForItem @419
+SHSetUnreadMailCountW=shell32.SHSetUnreadMailCountW @420
+;SHShowManageLibraryUI=shell32.SHShowManageLibraryUI @421
+SHUpdateRecycleBinIcon=shell32.SHUpdateRecycleBinIcon @422
+;SetCurrentProcessExplicitAppUserModelID=shell32.SetCurrentProcessExplicitAppUserModelID @423
+SheChangeDirA=shell32.SheChangeDirA @424
+SheChangeDirExA=shell32.SheChangeDirExA
+SheChangeDirExW=shell32.SheChangeDirExW @425
+SheChangeDirW=shell32.SheChangeDirW
+SheConvertPathW=shell32.SheConvertPathW
+SheFullPathA=shell32.SheFullPathA
+SheFullPathW=shell32.SheFullPathW
+SheGetCurDrive=shell32.SheGetCurDrive
+SheGetDirA=shell32.SheGetDirA @426
+SheGetDirExW=shell32.SheGetDirExW
+SheGetDirW=shell32.SheGetDirW
+SheGetPathOffsetW=shell32.SheGetPathOffsetW
+SheRemoveQuotesA=shell32.SheRemoveQuotesA
+SheRemoveQuotesW=shell32.SheRemoveQuotesW
+SheSetCurDrive=shell32.SheSetCurDrive @427
+SheShortenPathA=shell32.SheShortenPathA
+SheShortenPathW=shell32.SheShortenPathW
+ShellAboutA=shell32.ShellAboutA @428
+ShellAboutW=shell32.ShellAboutW @429
+ShellExec_RunDLL=shell32.ShellExec_RunDLL @430
+ShellExec_RunDLLA=shell32.ShellExec_RunDLLA @431
+ShellExec_RunDLLW=shell32.ShellExec_RunDLLW @432
+ShellExecuteA=shell32.ShellExecuteA @433
+ShellExecuteEx=shell32.ShellExecuteEx @434
+ShellExecuteExA=shell32.ShellExecuteExA @435
+ShellExecuteExW=shell32.ShellExecuteExW @436
+ShellExecuteW=shell32.ShellExecuteW @437
+ShellHookProc=shell32.ShellHookProc @438
+;Shell_GetCachedImageIndexA=shell32.Shell_GetCachedImageIndexA @439
+;Shell_GetCachedImageIndexW=shell32.Shell_GetCachedImageIndexW @440
+Shell_NotifyIcon=shell32.Shell_NotifyIcon @441
+Shell_NotifyIconA=shell32.Shell_NotifyIconA @442
+;Shell_NotifyIconGetRect=shell32.Shell_NotifyIconGetRect @443
+Shell_NotifyIconW=shell32.Shell_NotifyIconW @444
+StrChrA=shlwapi.StrChrA @445
+StrChrIA=shlwapi.StrChrIA @446
+StrChrIW=shlwapi.StrChrIW @447
+StrChrW=shlwapi.StrChrW @448
+StrCmpNA=shlwapi.StrCmpNA @449
+StrCmpNIA=shlwapi.StrCmpNIA @450
+StrCmpNIW=shlwapi.StrCmpNIW @451
+StrCmpNW=shlwapi.StrCmpNW @452
+StrCpyNA=shell32.StrCpyNA
+StrCpyNW=shell32.StrCpyNW
+StrNCmpA=shell32.StrNCmpA @453
+StrNCmpIA=shell32.StrNCmpIA @454
+StrNCmpIW=shell32.StrNCmpIW @455
+StrNCmpW=shell32.StrNCmpW @456
+StrNCpyA=shell32.StrNCpyA
+StrNCpyW=shell32.StrNCpyW
+StrRChrA=shlwapi.StrRChrA @457
+StrRChrIA=shlwapi.StrRChrIA @458
+StrRChrIW=shlwapi.StrRChrIW @459
+StrRChrW=shlwapi.StrRChrW @460
+StrRStrA=shell32.StrRStrA @461
+StrRStrIA=shlwapi.StrRStrIA @462
+StrRStrIW=shlwapi.StrRStrIW @463
+StrRStrW=shell32.StrRStrW @464
+StrStrA=shlwapi.StrStrA @465
+StrStrIA=shlwapi.StrStrIA @466
+StrStrIW=shlwapi.StrStrIW @467
+StrStrW=shlwapi.StrStrW @468
+WOWShellExecute=shell32.WOWShellExecute @469
+;WaitForExplorerRestartW=shell32.WaitForExplorerRestartW @470
+;shun
+SHAllocShared=shlwapi.SHAllocShared
+ord_520 = shell32.?520 @520
+;shun
+SHLockShared=shlwapi.SHLockShared
+ord_521 = shell32.?521 @521
+;shun
+SHUnlockShared=shlwapi.SHUnlockShared
+ord_522 = shell32.?522 @522
+;shun
+SHFreeShared=shlwapi.SHFreeShared
+ord_523 = shell32.?523 @523
+RealDriveType=shell32.RealDriveType @524
+ord_525=shell32.?525 @525
+SHFlushSFCache=shell32.SHFlushSFCache @526
+ord_640=shell32.?640 @640
+ord_641=shell32.?641 @641
+ord_643=shell32.?643 @643
+SHChangeNotification_Lock=shell32.SHChangeNotification_Lock @644
+SHChangeNotification_Unlock=shell32.SHChangeNotification_Unlock @645
+ord_646=shell32.?646 @646
+ord_648=shell32.?648 @648
+ord_650=shlwapi.PathIsSameRootW @650
+ord_651=shell32.?651 @651
+WriteCabinetState=shell32.WriteCabinetState @652
+ord_653=shell32.?653 @653
+ReadCabinetState=shell32.ReadCabinetState @654
+ord_660=shell32.?660 @660
+IsUserAnAdmin=shell32.IsUserAnAdmin @680
+ord_681=shell32.?681 @681
+;StgMakeUniqueName @682
+ord_683=shell32.?683 @683
+ord_684=shell32.?684 @684
+SHPropStgCreate=shell32.SHPropStgCreate @685
+SHPropStgReadMultiple=shell32.SHPropStgReadMultiple @688
+SHPropStgWriteMultiple=shell32.SHPropStgWriteMultiple @689
+ord_690=shell32.?690 @690
+ord_691=shell32.?691 @691
+ord_700=shell32.?700 @700
+CDefFolderMenu_Create2=shell32.CDefFolderMenu_Create2 @701
+ord_702=shell32.?702 @702
+ord_703=shlwapi.?269 @703
+ord_704=shlwapi.?270 @704
+ord_707=shell32.?707 @707
+ord_708=shell32.?708 @708
+SHGetSetFolderCustomSettings=shell32.SHGetSetFolderCustomSettings @709
+ord_711=shell32.?711 @711
+ord_712=shell32.?712 @712
+ord_713=shell32.?713 @713
+ord_714=shell32.?714 @714
+ord_715=shell32.?715 @715
+SHMultiFileProperties=shell32.SHMultiFileProperties @716
+ord_719=shell32.?719 @719
+ord_720=shell32.?720 @720
+ord_721=shell32.?721 @721
+ord_722=shell32.?722 @722
+ord_723=shell32.?723 @723
+ord_724=shell32.?724 @724
+ord_725=shell32.?725 @725
+ord_726=shell32.?726 @726
+SHGetImageList=shell32.SHGetImageList @727
+RestartDialogEx=shell32.RestartDialogEx @730
+ord_731=shell32.?731 @731
+ord_732=shell32.?732 @732
+ord_733=shell32.?733 @733
+ord_740=shell32.?740 @740
+SHCreateFileExtractIconW=shell32.SHCreateFileExtractIconW @743
+ord_744=shell32.?744 @744
+ord_745=shell32.?745 @745
+SHLimitInputEdit=shell32.SHLimitInputEdit @747
+ord_748=shell32.?748 @748
+ord_749=shell32.?749 @749
+SHGetAttributesFromDataObject=shell32.SHGetAttributesFromDataObject @750
+ord_751=shell32.?751 @751
+ord_752=shell32.?752 @752
+ord_753=shell32.?753 @753
+ord_754=shell32.?754 @754
+ord_755=shell32.?755 @755
+ord_756=shell32.?756 @756
+;this is shell32 xp ordinal end
+ord_757=shell32.?757 @757
+ord_758=shell32.?758 @758
+ord_759=shell32.?759 @759
+ord_760=shell32.?760 @760
+ord_761=shell32.?761 @761
+ord_762=shell32.?762 @762
+ord_763=shell32.?763 @763
+ord_764=shell32.?764 @764
+ord_766=shell32.?766 @766
+ord_767=shell32.?767 @767
+ord_777=shell32.?777 @777
+ord_778=shell32.?778 @778
+ord_781=shell32.?781 @781
+ord_786=shell32.?786 @786
+ord_787=shell32.?787 @787
+ord_788=shell32.?788 @788
+ord_789=shell32.?789 @789
+ord_790=shell32.?790 @790
+ord_791=shell32.?791 @791
+ord_810=shell32.?810 @810
+ord_811=shell32.?811 @811
+ord_812=shell32.?812 @812
+ord_813=shell32.?813 @813
+ord_814=shell32.?814 @814
+ord_815=shell32.?815 @815
+ord_816=shell32.?816 @816
+ord_817=shell32.?817 @817
+ord_818=shell32.?818 @818
+ord_819=shell32.?819 @819
+ord_820=shell32.?820 @820
+ord_821=shell32.?821 @821
+ord_822=shell32.?822 @822
+ord_823=shell32.?823 @823
+ord_824=shell32.?824 @824
+ord_825=shell32.?825 @825
+ord_826=shell32.?826 @826
+ord_827=shell32.?827 @827
+ord_828=shell32.?828 @828
+ord_829=shell32.?829 @829
+ord_830=shell32.?830 @830
+ord_831=shell32.?831 @831
+ord_832=shell32.?832 @832
+ord_833=shell32.?833 @833
+ord_834=shell32.?834 @834
+ord_835=shell32.?835 @835
+ord_836=shell32.?836 @836
+ord_837=shell32.?837 @837
+ord_838=shell32.?838 @838
+ord_839=shell32.?839 @839
+ord_840=shell32.?840 @840
+ord_841=shell32.?841 @841
+ord_842=shell32.?842 @842
+ord_843=shell32.?843 @843
+ord_844=shell32.?844 @844
+ord_845=shell32.?845 @845
+;ILLoadFromStreamEx @846
+ord_847=shell32.?847 @847
+ord_848=shell32.?848 @848
+ord_849=shell32.?849 @849
+ord_850=shell32.?850 @850
+ord_851=shell32.?851 @851
+ord_852=shell32.?852 @852
+ord_854=shell32.?854 @854
+ord_856=shell32.?856 @856
+ord_857=shell32.?857 @857
+ord_858=shell32.?858 @858
+ord_859=shell32.?859 @859
+ord_860=shell32.?860 @860
+ord_861=shell32.?861 @861
+ord_862=shell32.?862 @862
+ord_863=shell32.?863 @863
+ord_864=shell32.?864 @864
+ord_865=shell32.?865 @865
+ord_866=shell32.?866 @866
+ord_867=shell32.?867 @867
+ord_868=shell32.?868 @868
+ord_869=shell32.?869 @869
+ord_870=shell32.?870 @870
+ord_871=shell32.?871 @871
+ord_872=shell32.?872 @872
+ord_873=shell32.?873 @873
+ord_874=shell32.?874 @874
+ord_875=shell32.?875 @875
+ord_876=shell32.?876 @876
+ord_877=shell32.?877 @877
+ord_878=shell32.?878 @878
+ord_880=shell32.?880 @880
+ord_881=shell32.?881 @881
+ord_882=shell32.?882 @882
+ord_883=shell32.?883 @883
+ord_884=shell32.?884 @884
+ord_885=shell32.?885 @885
+ord_886=shell32.?886 @886
+ord_887=shell32.?887 @887
+ord_888=shell32.?888 @888
+ord_889=shell32.?889 @889
+ord_890=shell32.?890 @890
+ord_891=shell32.?891 @891
+ord_892=shell32.?892 @892
+ord_893=shell32.?893 @893
+ord_894=shell32.?894 @894
+ord_895=shell32.?895 @895
+ord_896=shell32.?896 @896
+ord_897=shell32.?897 @897
+ord_898=shell32.?898 @898
+ord_899=shell32.?899 @899
+ord_900=shell32.?900 @900
+ord_901=shell32.?901 @901
+ord_902=shell32.?902 @902
+ord_903=shell32.?903 @903
