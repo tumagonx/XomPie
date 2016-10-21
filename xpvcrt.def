@@ -403,8 +403,8 @@ _ftime32_s=msvcr120._ftime32_s @401
 _ftime64=msvcr120._ftime64 @402
 _ftime64_s=msvcr120._ftime64_s @403
 _ftol=msvcr120._ftol @404
-_ftol2=msvcr120._ftol2_sse @405
-_ftol2_sse=msvcr120._ftol2_sse @406
+_ftol2=msvcr120._ftol @405
+_ftol2_sse=msvcr120._ftol @406
 ;_ftol2_sse_excpt @407
 _fullpath=msvcr120._fullpath @408
 ;_fullpath_dbg @409
