@@ -486,9 +486,9 @@ GetEnhMetaFileW=gdi32.GetEnhMetaFileW @1483
 GetFontAssocStatus=gdi32.GetFontAssocStatus @1484
 GetFontData=gdi32.GetFontData @1485
 ;GetFontFileData @1486
-;GetFontFileInfo @1487
+GetFontFileInfo @1487
 GetFontLanguageInfo=gdi32.GetFontLanguageInfo @1488
-;GetFontRealizationInfo @1489
+GetFontRealizationInfo @1489
 GetFontResourceInfoW=gdi32.GetFontResourceInfoW @1490
 GetFontUnicodeRanges=gdi32.GetFontUnicodeRanges @1491
 GetGlyphIndicesA=gdi32.GetGlyphIndicesA @1492
