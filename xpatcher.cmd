@@ -22,10 +22,19 @@ gsar -o -i -s:x00a:x00d:x00v:x00a:x00p:x00i:x003:x002:x00.:x00d:x00l:x00l:x00:x0
 gsar -o -i -s:x00msvcrt.dll:x00 -r:x00xpvcrt.dll:x00 "%%~dpnxF"
 gsar -o -i -s:x90xpvcrt.dll:x00 -r:x90xpvcrt.dll:x00 "%%~dpnxF"
 gsar -o -i -s:x00m:x00s:x00v:x00c:x00r:x00t:x00.:x00d:x00l:x00l:x00:x00 -r:x00x:x00p:x00v:x00c:x00r:x00t:x00.:x00d:x00l:x00l:x00:x00 "%%~dpnxF"
+gsar -o -i -s:x00gdi32.dll:x00 -r:x00gdixp.dll:x00 "%%~dpnxF"
+gsar -o -i -s:x90gdi32.dll:x00 -r:x90gdixp.dll:x00 "%%~dpnxF"
+gsar -o -i -s:x00g:x00d:x00i:x003:x002:x00.:x00d:x00l:x00l:x00:x00 -r:x00g:x00d:x00i:x00x:x00p:x00.:x00d:x00l:x00l:x00:x00 "%%~dpnxF"
+gsar -o -i -s:x00shell32.dll:x00 -r:x00shellxp.dll:x00 "%%~dpnxF"
+gsar -o -i -s:x90shell32.dll:x00 -r:x90shellxp.dll:x00 "%%~dpnxF"
+gsar -o -i -s:x00s:x00h:x00e:x00l:x00l:x003:x002:x00.:x00d:x00l:x00l:x00:x00 -r:x00s:x00h:x00e:x00l:x00l:x00x:x00p:x00.:x00d:x00l:x00l:x00:x00 "%%~dpnxF"
+gsar -o -i -s:x00user32.dll:x00 -r:x00userxp.dll:x00 "%%~dpnxF"
+gsar -o -i -s:x90user32.dll:x00 -r:x90userxp.dll:x00 "%%~dpnxF"
+gsar -o -i -s:x00u:x00s:x00e:x00r:x003:x002:x00.:x00d:x00l:x00l:x00:x00 -r:x00u:x00s:x00e:x00r:x00x:x00p:x00.:x00d:x00l:x00l:x00:x00 "%%~dpnxF"
 pehdr-lite "%%~dpnxF" -subsysver 5.1
 )
 echo Finished...
 pause
 
-::make exclusion for common ms vc runtime, usually 6.0 enforced in vc 120 above,
+::TODO make exclusion for common ms vc runtime, usually 6.0 enforced in vc 120 above,
 ::but it can be as early as vc 80 aka vista sdk
