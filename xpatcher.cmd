@@ -26,3 +26,6 @@ pehdr-lite "%%~dpnxF" -subsysver 5.1
 )
 echo Finished...
 pause
+
+::make exclusion for common ms vc runtime, usually 6.0 enforced in vc 120 above,
+::but it can be as early as vc 80 aka vista sdk
