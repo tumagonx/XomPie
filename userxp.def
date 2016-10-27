@@ -1,6 +1,6 @@
 EXPORTS
-;ord_1500=user32.?1500 @1500
-;ord_1501=user32.?1501 @1501
+ord_1500=user32.?1500 @1500 NONAME
+ord_1501=user32.?1501 @1501 NONAME
 ActivateKeyboardLayout=user32.ActivateKeyboardLayout @1502
 ;AddClipboardFormatListener @1503
 AdjustWindowRect=user32.AdjustWindowRect @1504
@@ -692,7 +692,7 @@ SetMessageQueue=user32.SetMessageQueue @2189
 ;SetMirrorRendering @2190
 SetParent=user32.SetParent @2191
 ;SetPhysicalCursorPos @2192
-;SetProcessDPIAware @2193
+SetProcessDPIAware=DummySetProcessDPIAware @2193
 SetProcessDefaultLayout=user32.SetProcessDefaultLayout @2194
 SetProcessWindowStation=user32.SetProcessWindowStation @2195
 SetProgmanWindow=user32.SetProgmanWindow @2196
