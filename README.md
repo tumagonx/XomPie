@@ -1,9 +1,9 @@
 # XomPie
 XomPie is pun of XP and Zombie
 
-This project doesn't intent to be Alky which require system file transplant from newer Windows nor this involve complex patching of target binaries. You'll need Visual C Runtime 2015 and 2013 redist installed for XP.
-
-This is a simple wrapper (at the moment, just kernel32.dll) that might allow you to run applications that "artificially" drop XP support.
+What XomPie is not
+XomPie won't turn XP into 7 or anything like that, it follow the principle "keep existing system intact"
+XomPie don't/won't extend something that can't utilise existing feature in XP, however it may dummified them which to some extend may be useful. The limitation also apply to most newer UI-related and Service-related API which XP simply don't have to begin with.
 
 When Windows run executable, PE loader will check the kind of EXE (is it DOS, Win32, Win64 etc) including subsysver value in the header. When everything OK EXE will launched and start checkin its direct dependencies.
 
@@ -17,6 +17,8 @@ Sometime for example executable made by MinGW-W64, subsysver doesn't match with 
 When something missing (red) from kernel32.dll you need to rename "kernel32.dll" into "kernelxp.dll" in the dll or exe IAT. One of popular application to do this is PE Explorer from NTCore, though you can do this with sed as well with extra cautions. It is also possible to use manifest to load wrapper (without patching IAT) but since we still need to patch the exe (for subsysver) it's pointless and the method may trigger DEP as well. 
 
 Once both solved give your target executable a try.
+
+Basically XomPie forward missing function/API into backported ones from various newer freely available MS runtime dll or simply reuse (reroute) into existing system dlls. When both options not possible XomPie borrow implementation from Wine or make them dummies (if preferable).
 
 Example of "running" apps:
 Python 3.5,
