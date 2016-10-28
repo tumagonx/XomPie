@@ -9,7 +9,7 @@ AddAtomA=kernel32.AddAtomA @6
 AddAtomW=kernel32.AddAtomW @7
 AddConsoleAliasA=kernel32.AddConsoleAliasA @8
 AddConsoleAliasW=kernel32.AddConsoleAliasW @9
-;AddDllDirectory @10
+AddDllDirectory=DummyAddDllDirectory @10
 ;AddIntegrityLabelToBoundaryDescriptor @11
 AddLocalAlternateComputerNameA=kernel32.AddLocalAlternateComputerNameA @12
 AddLocalAlternateComputerNameW=kernel32.AddLocalAlternateComputerNameW @13
@@ -739,7 +739,7 @@ InitOnceBeginInitialize=WineInitOnceBeginInitialize @736
 InitOnceComplete=WineInitOnceComplete @737
 InitOnceExecuteOnce @738
 InitOnceInitialize=WineRtlRunOnceInitialize @739
-InitializeConditionVariable=WineRtlInitializeConditionVariable @740
+InitializeConditionVariable=BWCInitializeConditionVariable @740
 ;InitializeContext @741
 InitializeCriticalSection=kernel32.InitializeCriticalSection @742
 InitializeCriticalSectionAndSpinCount=kernel32.InitializeCriticalSectionAndSpinCount @743
@@ -1206,7 +1206,7 @@ ShowConsoleCursor=kernel32.ShowConsoleCursor @1203
 SignalObjectAndWait=kernel32.SignalObjectAndWait @1204
 SizeofResource=kernel32.SizeofResource @1205
 Sleep=kernel32.Sleep @1206
-SleepConditionVariableCS=WineSleepConditionVariableCS @1207
+SleepConditionVariableCS=BWCSleepConditionVariableCS @1207
 SleepConditionVariableSRW=WineSleepConditionVariableSRW @1208
 SleepEx=kernel32.SleepEx @1209
 ;SortCloseHandle @1210
@@ -1286,8 +1286,8 @@ WaitForThreadpoolTimerCallbacks @1282
 ;WaitForThreadpoolWorkCallbacks @1284
 WaitNamedPipeA=kernel32.WaitNamedPipeA @1285
 WaitNamedPipeW=kernel32.WaitNamedPipeW @1286
-WakeAllConditionVariable=WineRtlWakeAllConditionVariable @1287
-WakeConditionVariable=WineRtlWakeConditionVariable @1288
+WakeAllConditionVariable=BWCWakeAllConditionVariable @1287
+WakeConditionVariable=BWCWakeConditionVariable @1288
 WerGetFlags=DummyWerGetFlags @1289
 WerRegisterFile=DummyWerRegisterFile @1290
 WerRegisterMemoryBlock=DummyWerRegisterMemoryBlock @1291
