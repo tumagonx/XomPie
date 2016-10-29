@@ -31,6 +31,9 @@ gsar -o -i -s:x00s:x00h:x00e:x00l:x00l:x003:x002:x00.:x00d:x00l:x00l:x00:x00 -r:
 gsar -o -i -s:x00user32.dll:x00 -r:x00userxp.dll:x00 "%%~dpnxF"
 gsar -o -i -s:x90user32.dll:x00 -r:x90userxp.dll:x00 "%%~dpnxF"
 gsar -o -i -s:x00u:x00s:x00e:x00r:x003:x002:x00.:x00d:x00l:x00l:x00:x00 -r:x00u:x00s:x00e:x00r:x00x:x00p:x00.:x00d:x00l:x00l:x00:x00 "%%~dpnxF"
+gsar -o -i -s:x00d3d9.dll:x00 -r:x00d3dx.dll:x00 "%%~dpnxF"
+gsar -o -i -s:x90d3d9.dll:x00 -r:x90d3dx.dll:x00 "%%~dpnxF"
+gsar -o -i -s:x00d:x003:x00d:x009:x00.:x00d:x00l:x00l:x00:x00 -r:x00d:x003:x00d:x00x:x00.:x00d:x00l:x00l:x00:x00 "%%~dpnxF"
 pehdr-lite "%%~dpnxF" -subsysver 5.1
 )
 echo Finished...
