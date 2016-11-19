@@ -31,7 +31,7 @@ for %%I in ("gsar.exe") do if not exist "%%~$PATH:I" echo Error: gsar not found&
 for %%I in ("pehdr-lite.exe") do if not exist "%%~$PATH:I" echo Error: pehdr-lite not found&pause & goto :EOF
 for %%I in ("osslsigncode.exe") do if exist "%%~$PATH:I" set USIGN=1
 for %%I in ("upx.exe") do if exist "%%~$PATH:I" set UPXPE=1
-if exist "%CommonProgramFiles%\Microsoft Shared\OFFICE 14\usp10.dll" set USPOK=1
+if exist "%CommonProgramFiles%\Microsoft Shared\OFFICE14\usp10.dll" set USPOK=1
 
 if "%~1" equ "" echo Error: no input specified&pause & goto :EOF
 if not exist "%~1\*" goto :PERFILE
@@ -80,7 +80,7 @@ gsar -o -i -s:x00%usrori: =:x00%:x00 -r:x00%usrmod: =:x00%:x00 "%~dpnx1"
 gsar -o -i -s:x00%wskori: =%:x00 -r:x00%wskmod: =%:x00 "%~dpnx1"
 gsar -o -i -s:x90%wskori: =%:x00 -r:x90%wskmod: =%:x00 "%~dpnx1"
 gsar -o -i -s:x00%wskori: =:x00%:x00 -r:x00%wskmod: =:x00%:x00 "%~dpnx1"
-if "%USPOK%" EQU 1 (
+if "%USPOK%" EQU "1" (
 gsar -o -i -s:x00%uspori: =%:x00 -r:x00%uspmod: =%:x00 "%~dpnx1"
 gsar -o -i -s:x90%uspori: =%:x00 -r:x90%uspmod: =%:x00 "%~dpnx1"
 gsar -o -i -s:x00%uspori: =:x00%:x00 -r:x00%uspmod: =:x00%:x00 "%~dpnx1"
