@@ -82,7 +82,7 @@ WSALookupServiceNextW=ws2_32.WSALookupServiceNextW @80
 WSANSPIoctl=ws2_32.WSANSPIoctl @81
 WSANtohl=ws2_32.WSANtohl @82
 WSANtohs=ws2_32.WSANtohs @83
-;WSAPoll @84
+WSAPoll @84
 ;WSAProviderCompleteAsyncCall @85
 WSAProviderConfigChange=ws2_32.WSAProviderConfigChange @86
 WSARecv=ws2_32.WSARecv @87

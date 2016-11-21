@@ -146,8 +146,7 @@ inet_ntop_v6 (const void *src, char *dst, size_t size)
     return orig_dst;
 }
 
-//const char * inet_ntop(int af, const void *src, char *dst, size_t size)
-LPCSTR WINAPI inet_ntop(INT af, PVOID src, LPSTR dst, size_t size)
+LPCSTR WSAAPI inet_ntop(INT af, PVOID src, LPSTR dst, size_t size)
 {
     LPCSTR pdst;
     if (!dst)
@@ -171,7 +170,7 @@ LPCSTR WINAPI inet_ntop(INT af, PVOID src, LPSTR dst, size_t size)
     return pdst;
 }
 
-INT WINAPI inet_pton(INT af, LPCSTR csrc, PVOID dst)
+INT WSAAPI inet_pton(INT af, LPCSTR csrc, PVOID dst)
 {
     char * src;
 
@@ -271,7 +270,7 @@ INT WINAPI inet_pton(INT af, LPCSTR csrc, PVOID dst)
 /***********************************************************************
 *              InetPtonW                      (WS2_32.@)
 */
-INT WINAPI InetPtonW(INT family, LPCWSTR addr, PVOID buffer)
+INT WSAAPI InetPtonW(INT family, LPCWSTR addr, PVOID buffer)
 {
     char *addrA;
     int len;
@@ -300,7 +299,7 @@ INT WINAPI InetPtonW(INT family, LPCWSTR addr, PVOID buffer)
 /***********************************************************************
 *              InetNtopW                      (WS2_32.@)
 */
-LPCWSTR WINAPI InetNtopW(INT family, PVOID addr, LPCWSTR buffer, size_t size)
+LPCWSTR WSAAPI InetNtopW(INT family, PVOID addr, LPCWSTR buffer, size_t size)
 {
 // FIXME should fix inet_ntop_v4/inet_ntop_v6 to be wchar variant, not like this
     LPSTR bufferA;
@@ -330,3 +329,194 @@ LPCWSTR WINAPI InetNtopW(INT family, PVOID addr, LPCWSTR buffer, size_t size)
  */
 
 // FIXME: maybe we could use curl poll()? but it's a fallback via select()
+/***************************************************************************
+ *                                  _   _ ____  _
+ *  Project                     ___| | | |  _ \| |
+ *                             / __| | | | |_) | |
+ *                            | (__| |_| |  _ <| |___
+ *                             \___|\___/|_| \_\_____|
+ *
+ * Copyright (C) 1998 - 2005, Daniel Stenberg, <daniel@haxx.se>, et al.
+ *
+ * This software is licensed as described in the file COPYING, which
+ * you should have received as part of this distribution. The terms
+ * are also available at http://curl.haxx.se/docs/copyright.html.
+ *
+ * You may opt to use, copy, modify, merge, publish, distribute and/or sell
+ * copies of the Software, and permit persons to whom the Software is
+ * furnished to do so, under the terms of the COPYING file.
+ *
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
+ * KIND, either express or implied.
+ *
+ * $Id: select.c,v 1.13 2005/04/26 13:08:49 bagder Exp $
+ ***************************************************************************/
+
+#include <errno.h>
+#include <stdbool.h>
+#include <fcntl.h>
+
+struct pollfd
+{
+    SOCKET fd;
+    short events;
+    short revents;
+};
+
+#define POLLIN      0x01
+#define POLLPRI     0x02
+#define POLLOUT     0x04
+#define POLLERR     0x08
+#define POLLHUP     0x10
+#define POLLNVAL    0x20
+
+#define POLLRDNORM POLLIN
+#define POLLWRNORM POLLOUT
+#define POLLRDBAND POLLPRI
+
+
+#define VERIFY_SOCK(x)  /* Win-sockets are not in range [0..FD_SETSIZE> */
+
+static long curlx_tvdiff(struct timeval newer, struct timeval older)
+{
+  return (newer.tv_sec-older.tv_sec)*1000+
+    (newer.tv_usec-older.tv_usec)/1000;
+}
+
+static struct timeval curlx_tvnow(void)
+{
+  /*
+  ** GetTickCount() is available on _all_ Windows versions from W95 up
+  ** to nowadays. Returns milliseconds elapsed since last system boot,
+  ** increases monotonically and wraps once 49.7 days have elapsed.
+  */
+  struct timeval now;
+  DWORD milliseconds = GetTickCount();
+  now.tv_sec = milliseconds / 1000;
+  now.tv_usec = (milliseconds % 1000) * 1000;
+  return now;
+}
+
+static int Curl_wait_ms(int timeout_ms)
+{
+  int r = 0;
+  if(!timeout_ms)
+    return 0;
+  if(timeout_ms < 0) {
+    WSASetLastError((int)EINVAL);
+    return -1;
+  }
+  Sleep(timeout_ms);
+  if(r)
+    r = -1;
+  return r;
+}
+
+int WSAAPI WSAPoll(struct pollfd ufds[], unsigned int nfds, int timeout_ms)
+{
+
+  struct timeval pending_tv;
+  struct timeval *ptimeout;
+  fd_set fds_read;
+  fd_set fds_write;
+  fd_set fds_err;
+  SOCKET maxfd;
+
+  struct timeval initial_tv = {0,0};
+  bool fds_none = TRUE;
+  unsigned int i;
+  int pending_ms = 0;
+  int error;
+  int r;
+
+  if(ufds) {
+    for(i = 0; i < nfds; i++) {
+      if(ufds[i].fd != INVALID_SOCKET) {
+        fds_none = FALSE;
+        break;
+      }
+    }
+  }
+  if(fds_none) {
+    r = Curl_wait_ms(timeout_ms);
+    return r;
+  }
+
+  /* Avoid initial timestamp, avoid curlx_tvnow() call, when elapsed
+     time in this function does not need to be measured. This happens
+     when function is called with a zero timeout or a negative timeout
+     value indicating a blocking call should be performed. */
+
+  if(timeout_ms > 0) {
+    pending_ms = timeout_ms;
+    initial_tv = curlx_tvnow();
+  }
+  FD_ZERO(&fds_read);
+  FD_ZERO(&fds_write);
+  FD_ZERO(&fds_err);
+  maxfd = (SOCKET)-1;
+
+  for(i = 0; i < nfds; i++) {
+    ufds[i].revents = 0;
+    if(ufds[i].fd == INVALID_SOCKET)
+      continue;
+    VERIFY_SOCK(ufds[i].fd);
+    if(ufds[i].events & (POLLIN|POLLOUT|POLLPRI|
+                          POLLRDNORM|POLLWRNORM|POLLRDBAND)) {
+      if(ufds[i].fd > maxfd)
+        maxfd = ufds[i].fd;
+      if(ufds[i].events & (POLLRDNORM|POLLIN))
+        FD_SET(ufds[i].fd, &fds_read);
+      if(ufds[i].events & (POLLWRNORM|POLLOUT))
+        FD_SET(ufds[i].fd, &fds_write);
+      if(ufds[i].events & (POLLRDBAND|POLLPRI))
+        FD_SET(ufds[i].fd, &fds_err);
+    }
+  }
+
+  ptimeout = (timeout_ms < 0) ? NULL : &pending_tv;
+
+  do {
+    if(timeout_ms > 0) {
+      pending_tv.tv_sec = pending_ms / 1000;
+      pending_tv.tv_usec = (pending_ms % 1000) * 1000;
+    }
+    else if(!timeout_ms) {
+      pending_tv.tv_sec = 0;
+      pending_tv.tv_usec = 0;
+    }
+    r = select((int)maxfd + 1, &fds_read, &fds_write, &fds_err, ptimeout);
+    if(r != -1)
+      break;
+    error = (int)WSAGetLastError();
+    if(error && (0 || error != WSAEINTR))
+      break;
+    if(timeout_ms > 0) {
+      pending_ms = timeout_ms - curlx_tvdiff(curlx_tvnow(), initial_tv);
+      if(pending_ms <= 0)
+        break;
+    }
+  } while(r == -1);
+
+  if(r < 0)
+    return -1;
+  if(r == 0)
+    return 0;
+
+  r = 0;
+  for(i = 0; i < nfds; i++) {
+    ufds[i].revents = 0;
+    if(ufds[i].fd == INVALID_SOCKET)
+      continue;
+    if(FD_ISSET(ufds[i].fd, &fds_read))
+      ufds[i].revents |= POLLIN;
+    if(FD_ISSET(ufds[i].fd, &fds_write))
+      ufds[i].revents |= POLLOUT;
+    if(FD_ISSET(ufds[i].fd, &fds_err))
+      ufds[i].revents |= POLLPRI;
+    if(ufds[i].revents != 0)
+      r++;
+  }
+
+  return r;
+}
