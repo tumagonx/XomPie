@@ -673,7 +673,7 @@ GetUserDefaultLangID=kernel32.GetUserDefaultLangID @670
 GetUserDefaultLocaleName=msvcr120.__crtGetUserDefaultLocaleName @671
 GetUserDefaultUILanguage=kernel32.GetUserDefaultUILanguage @672
 GetUserGeoID=kernel32.GetUserGeoID @673
-;GetUserPreferredUILanguages @674
+GetUserPreferredUILanguages=WineGetUserPreferredUILanguages @674
 GetVDMCurrentDirectories=kernel32.GetVDMCurrentDirectories @675
 GetVersion=kernel32.GetVersion @676
 GetVersionExA=kernel32.GetVersionExA @677

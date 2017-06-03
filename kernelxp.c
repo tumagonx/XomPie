@@ -280,6 +280,7 @@ LONGLONG WINAPI InterlockedCompareExchange64(LONGLONG volatile *Destination, LON
 #define GetFinalPathNameByHandleA WineGetFinalPathNameByHandleA
 #define GetSystemDefaultLocaleName WineGetSystemDefaultLocaleName
 #define GetSystemPreferredUILanguages WineGetSystemPreferredUILanguages
+#define GetUserPreferredUILanguages WineGetUserPreferredUILanguages
 #define GetThreadPreferredUILanguages WineGetThreadPreferredUILanguages
 #define GetThreadId WineGetThreadId
 #define K32QueryWorkingSetEx WineK32QueryWorkingSetEx
@@ -959,7 +960,7 @@ static inline unsigned short get_table_entry( const unsigned short *table, WCHAR
     return table[table[table[ch >> 8] + ((ch >> 4) & 0x0f)] + (ch & 0xf)];
 }
 
-static BOOL get_dummy_preferred_ui_language( DWORD flags, ULONG *count, WCHAR *buffer, ULONG *size )
+static BOOL get_dummy_preferred_ui_language( DWORD flags, ULONG *count, WCHAR *buffer, ULONG *size, int isuser )
 {
     LCTYPE type;
     int lsize;
@@ -971,7 +972,10 @@ static BOOL get_dummy_preferred_ui_language( DWORD flags, ULONG *count, WCHAR *b
     else
         type = LOCALE_SNAME;
 
-    lsize = GetLocaleInfoW(LOCALE_SYSTEM_DEFAULT, type, NULL, 0);
+    if (isuser)
+        lsize = GetLocaleInfoW(LOCALE_USER_DEFAULT, type, NULL, 0);
+    else
+        lsize = GetLocaleInfoW(LOCALE_SYSTEM_DEFAULT, type, NULL, 0);
     if (!lsize)
     {
         /* keep last error from callee */
@@ -991,12 +995,18 @@ static BOOL get_dummy_preferred_ui_language( DWORD flags, ULONG *count, WCHAR *b
         return FALSE;
     }
 
-    if (!GetLocaleInfoW(LOCALE_SYSTEM_DEFAULT, type, buffer, *size))
-    {
-        /* keep last error from callee */
-        return FALSE;
-    }
-
+    if (isuser)
+        if (!GetLocaleInfoW(LOCALE_USER_DEFAULT, type, buffer, *size))
+        {
+            /* keep last error from callee */
+            return FALSE;
+        }
+    else
+        if (!GetLocaleInfoW(LOCALE_SYSTEM_DEFAULT, type, buffer, *size))
+        {
+            /* keep last error from callee */
+            return FALSE;
+        }
     buffer[lsize-1] = 0;
     *size = lsize;
     *count = 1;
@@ -1590,7 +1600,31 @@ BOOL WINAPI GetSystemPreferredUILanguages(DWORD flags, ULONG* count, WCHAR* buff
         return FALSE;
     }
 
-    return get_dummy_preferred_ui_language( flags, count, buffer, size );
+    return get_dummy_preferred_ui_language( flags, count, buffer, size, 0 );
+}
+
+/***********************************************************************
+ *             GetUserPreferredUILanguages (KERNEL32.@)
+ */
+BOOL WINAPI GetUserPreferredUILanguages(DWORD flags, ULONG* count, WCHAR* buffer, ULONG* size)
+{
+    if (flags & ~(MUI_LANGUAGE_NAME | MUI_LANGUAGE_ID | MUI_MACHINE_LANGUAGE_SETTINGS))
+    {
+        SetLastError(ERROR_INVALID_PARAMETER);
+        return FALSE;
+    }
+    if ((flags & MUI_LANGUAGE_NAME) && (flags & MUI_LANGUAGE_ID))
+    {
+        SetLastError(ERROR_INVALID_PARAMETER);
+        return FALSE;
+    }
+    if (*size && !buffer)
+    {
+        SetLastError(ERROR_INVALID_PARAMETER);
+        return FALSE;
+    }
+
+    return get_dummy_preferred_ui_language( flags, count, buffer, size, 1 );
 }
 
 /***********************************************************************
@@ -1608,7 +1642,7 @@ BOOL WINAPI SetThreadPreferredUILanguages( DWORD flags, PCZZWSTR buffer, PULONG 
 BOOL WINAPI GetThreadPreferredUILanguages( DWORD flags, ULONG *count, WCHAR *buf, ULONG *size )
 {
     FIXME( "%08x, %p, %p %p\n", flags, count, buf, size );
-    return get_dummy_preferred_ui_language( flags, count, buf, size );
+    return get_dummy_preferred_ui_language( flags, count, buf, size, 0 );
 }
 
 /*

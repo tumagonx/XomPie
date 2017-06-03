@@ -52,7 +52,7 @@ if not exist "%~1" shift /1&& goto :PERFILE
 echo Patching "%~nx1"...
 call :PATCHER "%~dpnx1"
 shift /1
-if not "%1" EQU "" goto :PERFILE
+if not "%~1" EQU "" goto :PERFILE
 echo Finished...
 pause& exit
 :PATCHER
