@@ -74,15 +74,15 @@ pause& exit
 
 :XOMARGPARSE
 if "%1" EQU "0" set nop=1
-if "%1" EQU "1" set krn=1
-if "%1" EQU "2" set adv=1
-if "%1" EQU "3" set usr=1
-if "%1" EQU "4" set wsk=1
-if "%1" EQU "5" set gdi=1
-if "%1" EQU "6" set usp=1
-if "%1" EQU "7" set shl=1
-if "%1" EQU "8" set crt=1
-if "%1" EQU "9" set dex=1
+if "%1" EQU "1" set krn=1& set nop=
+if "%1" EQU "2" set adv=1& set nop=
+if "%1" EQU "3" set usr=1& set nop=
+if "%1" EQU "4" set wsk=1& set nop=
+if "%1" EQU "5" set gdi=1& set nop=
+if "%1" EQU "6" set usp=1& set nop=
+if "%1" EQU "7" set shl=1& set nop=
+if "%1" EQU "8" set crt=1& set nop=
+if "%1" EQU "9" set dex=1& set nop=
 shift /1
 if not "%~1" EQU "" goto :XOMARGPARSE
 goto :EOF
