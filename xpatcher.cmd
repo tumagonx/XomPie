@@ -152,8 +152,7 @@ gsar -o -i -s:x00%uspori: =:x00%:x00 -r:x00%uspmod: =:x00%:x00 "%~dpnx1"
 if "%PFLAG%" EQU "1" peflags --bigaddr=true "%~dpnx1"
 pehdr-lite "%~dpnx1" -subsysver 5.1
 echo.
-echo Check curent dependencies:
-if "%LDD%" EQU "1" ldd "%~dpnx1"
+if "%~x1" EQU ".exe" if "%LDD%" EQU "1" ldd "%~dpnx1"
 
 ::TODO make exclusion for common ms vc runtime, usually 6.0 enforced in vc 120 above,
 ::but it can be as early as vc 80 aka vista sdk, these CRTs should never be patched...
