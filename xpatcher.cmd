@@ -101,7 +101,6 @@ pause& exit
 attrib -r "%~1" && copy /y "%~1" "%~dpnx1.bak" >nul 2>&1
 if "%USIGN%" equ "1" osslsigncode remove-signature -in "%~dpnx1" -out "%TEMP%\%~nx1" && move /y "%TEMP%\%~nx1" "%~dpnx1" >nul 2>&1
 if "%UPXPE%" equ "1" upx -k -d "%~dpnx1" >nul 2>&1
-if /i "%~x1" EQU ".exe" if "%LDD%" EQU "1" ldd "%~dpnx1"
 
 if "%nop%" EQU "1" goto :nop
 if "%krn%" EQU "1" (
@@ -152,6 +151,9 @@ gsar -o -i -s:x00%uspori: =:x00%:x00 -r:x00%uspmod: =:x00%:x00 "%~dpnx1"
 :nop
 if "%PFLAG%" EQU "1" peflags --bigaddr=true "%~dpnx1"
 pehdr-lite "%~dpnx1" -subsysver 5.1
+echo.
+echo Check curent dependencies:
+if "%LDD%" EQU "1" ldd "%~dpnx1"
 
 ::TODO make exclusion for common ms vc runtime, usually 6.0 enforced in vc 120 above,
 ::but it can be as early as vc 80 aka vista sdk, these CRTs should never be patched...
